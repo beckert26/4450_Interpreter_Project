@@ -84,6 +84,7 @@ public class Variable {
         else if(isBoolean==true){
             return "boolean";
         }
+        return "failure";
     }
     
     //Setters
