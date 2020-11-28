@@ -10,6 +10,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 /**
  *
@@ -35,6 +36,13 @@ public class Interpretter_project {
 	}
         
         System.out.println("\nOriginal File:\n" +file);
+        
+        ArrayList<String> fileLines = new ArrayList<>();
+        fileLines=parseFileLines(file);
+        System.out.println("\n\nFile separated");
+        for(int i=0; i<fileLines.size(); i++){
+            System.out.println(fileLines.get(i));
+        }
     }
     
     static String readFile(String path, Charset encoding) throws IOException{
@@ -49,6 +57,25 @@ public class Interpretter_project {
             }
         }
         return false;
+    }
+    
+    static ArrayList<String> parseFileLines(String file){
+        ArrayList<String> fileList = new ArrayList<>();
+        
+        String line = "";
+        char c=' ';
+        for(int i=0; i<=file.length()-1; i++) {
+            c=file.charAt(i);
+            if(c!='\n'){
+                line+=Character.toString(c);
+            }
+            else if(c=='\n'){
+                fileList.add(line);
+                line="";
+            }
+	}
+        fileList.add(line);
+        return fileList;
     }
     
 }
