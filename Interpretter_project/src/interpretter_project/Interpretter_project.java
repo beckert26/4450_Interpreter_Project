@@ -24,25 +24,31 @@ public class Interpretter_project {
     public static void main(String[] args) throws IOException {
         String file=readFile("test.py", StandardCharsets.US_ASCII);
         
-        System.out.println("Characters in file:\n");
-        for(int i=0; i<=file.length()-1; i++) {
-            if(file.charAt(i)=='\n'){
-                System.out.print("NEW LINE HERE");
-            }
-            if(checkTab(file, i)){
-                System.out.print("TAB HERE");
-            } 
-            System.out.println(file.charAt(i));
-	}
+//        System.out.println("Characters in file:\n");
+//        for(int i=0; i<=file.length()-1; i++) {
+//            if(file.charAt(i)=='\n'){
+//                System.out.print("NEW LINE HERE");
+//            }
+//            if(checkTab(file, i)){
+//                System.out.print("TAB HERE");
+//            } 
+//            System.out.println(file.charAt(i));
+//	}
         
         System.out.println("\nOriginal File:\n" +file);
         
         ArrayList<String> fileLines = new ArrayList<>();
+        
         fileLines=parseFileLines(file);
         System.out.println("\n\nFile separated");
         for(int i=0; i<fileLines.size(); i++){
             System.out.println(fileLines.get(i));
         }
+        
+        //array list for variables
+        ArrayList<Variable> varaibles = new ArrayList<>();
+        
+        //function to see if line of code is variable declaration
     }
     
     static String readFile(String path, Charset encoding) throws IOException{
