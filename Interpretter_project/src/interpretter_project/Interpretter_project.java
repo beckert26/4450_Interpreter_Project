@@ -22,7 +22,8 @@ public class Interpretter_project {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws IOException {
-        String file=readFile("test.py", StandardCharsets.US_ASCII);
+        //read file in
+        String file=readFile("python_test_code.py", StandardCharsets.US_ASCII);
         
 //        System.out.println("Characters in file:\n");
 //        for(int i=0; i<=file.length()-1; i++) {
@@ -35,18 +36,26 @@ public class Interpretter_project {
 //            System.out.println(file.charAt(i));
 //	}
         
-        System.out.println("\nOriginal File:\n" +file);
+        //System.out.println("\nOriginal File:\n" +file);
         
         ArrayList<String> fileLines = new ArrayList<>();
         
         fileLines=parseFileLines(file);
-        System.out.println("\n\nFile separated");
-        for(int i=0; i<fileLines.size(); i++){
-            System.out.println(fileLines.get(i));
-        }
+        System.out.println("\n\nFile separated:");
         
         //array list for variables
         ArrayList<Variable> varaibles = new ArrayList<>();
+        String line="";
+        String result="";
+        for(int i=0; i<fileLines.size(); i++){
+            line=fileLines.get(i);
+            result=typeOfLine(line);
+            
+            System.out.println(line);
+            System.out.println(result);
+        }
+        
+        
         
         //function to see if line of code is variable declaration
     }
@@ -82,6 +91,32 @@ public class Interpretter_project {
 	}
         fileList.add(line);
         return fileList;
+    }
+    
+     static String typeOfLine(String line){
+        //System.out.println(line);
+        line=line.trim();
+        if(line.equals(""))
+            return "empty";
+        else if(line.substring(0,1).equals("#"))
+            return "comment";
+        else if(line.substring(0,5).equals("print"))
+            return "print";
+        else if(line.substring(0,2).equals("if"))
+            return "if";
+        else if(line.substring(0,4).equals("elif"))
+            return "elif";
+        else if(line.substring(0,4).equals("else"))
+            return "else";
+        else if(line.substring(0,3).equals("for"))
+            return "for";
+        else if(line.substring(0,5).equals("while"))
+            return"while";
+        else
+            return"variable";
+        
+            
+
     }
     
 }

@@ -76,7 +76,7 @@ public class Variable {
             return "int";
         }
         else if(isDouble==true){
-            return "int";
+            return "double";
         }
         else if(isChar==true){
             return "char";
