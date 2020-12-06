@@ -46,13 +46,17 @@ public class Interpretter_project {
         //array list for variables
         ArrayList<Variable> varaibles = new ArrayList<>();
         String line="";
-        String result="";
+        String type="";
         for(int i=0; i<fileLines.size(); i++){
             line=fileLines.get(i);
-            result=typeOfLine(line);
+            type=typeOfLine(line);
             
             System.out.println(line);
-            System.out.println(result);
+            System.out.println(type);
+            
+            if(type.equals("comment")){
+                continue;
+            }
         }
         
         
