@@ -24,51 +24,55 @@ public class Variable {
     private boolean isChar=false;
     private boolean isBoolean=false;
     
-    private Variable(String name, String sValue){
+    public Variable(String name, String sValue){
         this.name=name;
         this.sValue=sValue;
         this.isString=true;
     }
-    private Variable(String name, int intValue){
+    public Variable(String name, int intValue){
         this.name=name;
         this.intValue=intValue;
         this.isInt=true;
     }
-    private Variable(String name, double doubleValue){
+    public Variable(String name, double doubleValue){
         this.name=name;
         this.doubleValue=doubleValue;
         this.isDouble=true;
     }
-    private Variable(String name, char charValue){
+    public Variable(String name, char charValue){
         this.name=name;
         this.charValue=charValue;
         this.isChar=true;
     }
-    private Variable(String name, boolean booleanValue){
+    public Variable(String name, boolean booleanValue){
         this.name=name;
         this.booleanValue=booleanValue;
         this.isBoolean=true;
     }
+
     
     //Getters
-    private String getName(){
+    public String getName(){
         return this.name;
     }
-    private int getIntValue(){
+    public String getStringValue(){
+        return this.sValue;
+    }
+    public int getIntValue(){
         return this.intValue;
     }
-    private double getDoubleValue(){
+    public double getDoubleValue(){
         return this.doubleValue;
     }
-    private char getCharValue(){
+    public char getCharValue(){
         return this.charValue;
     }
-    private boolean getBooleanValue(){
+    public boolean getBooleanValue(){
         return this.booleanValue;
     }
     
     //Get Variable Type
-    private String getVaraibleType(){
+    public String getVariableType(){
         if(isString==true){
             return "string";
         }
@@ -88,19 +92,22 @@ public class Variable {
     }
     
     //Setters
-    private void setName(String name){
+    public void setName(String name){
         this.name=name;
     }
-    private void setIntValue(int intValue){
+    public void setStringValue(String sValue){
+        this.sValue=sValue;
+    }
+    public void setIntValue(int intValue){
         this.intValue=intValue;
     }
-    private void setDoubleValue(double doubleValue){
+    public void setDoubleValue(double doubleValue){
         this.doubleValue=doubleValue;
     }
-    private void setCharValue(char charValue){
+    public void setCharValue(char charValue){
         this.charValue=charValue;
     }
-    private void setBooleanValue(boolean booleanValue){
+    public void setBooleanValue(boolean booleanValue){
         this.booleanValue=booleanValue;
     }
     
