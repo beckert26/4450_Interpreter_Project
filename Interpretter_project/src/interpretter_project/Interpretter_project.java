@@ -23,14 +23,13 @@ public class Interpretter_project {
      */
     public static void main(String[] args) throws IOException {
         //read file in
-        String file=readFile("python_test_code.py", StandardCharsets.US_ASCII);
-//        String file=readFile("test.py", StandardCharsets.US_ASCII);
+//        String file=readFile("python_test_code.py", StandardCharsets.US_ASCII);
+        String file=readFile("test.py", StandardCharsets.US_ASCII);
         
         
         ArrayList<String> fileLines = new ArrayList<>();
         
         fileLines=parseFileLines(file);
-        System.out.println("\n\nFile separated:");
         
         //array list for variables
         ArrayList<Variable> variables = new ArrayList<>();
@@ -74,8 +73,8 @@ public class Interpretter_project {
             Variable v=variables.get(j);
             System.out.println(v.getName());
             String vtype=v.getVariableType();
-            if(vtype=="int")
-                System.out.println(v.getIntValue());
+            if(vtype=="double")
+                System.out.println(v.getDoubleValue());
             else
                 System.out.println(v.getStringValue());
         }
@@ -161,6 +160,49 @@ public class Interpretter_project {
         }
         
         //second value
+        //check whether right hand side has arthimetic and handle the arthimetic
+        for(int k=0; k<value.length(); k++){
+            char cVal=value.charAt(k);
+            String opVal="";
+            String left="";
+            String right="";
+            String restValue="";
+            int leftVal=0;
+            int rightVal=0;
+            if(cVal=='+' || cVal=='*' || cVal=='/' || cVal=='%' || cVal=='^' || (cVal=='-' && k!=0) ){
+                opVal=Character.toString(cVal);
+                
+                int p=0;
+                for(int m=0; m<value.length(); m++){
+                    
+                    char cVal2=value.charAt(m);
+                    
+                    if((p==0 && cVal2!=' ' && cVal2!='+' && cVal2!='-' && cVal2!='*' && cVal2!='/' && cVal2!='%' && cVal2!='^') || (cVal2=='-' && right.equals("") && p==0)){
+                        left+=Character.toString(cVal2);
+                    }
+                    else if((p==1 && cVal2!='-' && cVal2!=' ' && cVal2!='+' && cVal2!='*' && cVal2!='/' && cVal2!='%' && cVal2!='^') || (cVal2=='-' && right.equals("") && p==1)){
+                        right+=Character.toString(cVal2);
+                    }
+                    else if(cVal2=='+' || cVal2=='-' || cVal2=='*' || cVal2=='/' || cVal2=='%' || cVal2=='^' ){
+                        p++;
+                    }
+                    if(p>=2){
+                        restValue+=Character.toString(cVal2);
+                    }
+                }
+                
+                leftVal=Integer.parseInt(left);
+                rightVal=Integer.parseInt(right);
+                if(!opVal.equals("/"))
+                    value=Integer.toString(arithmeticOperation(leftVal, rightVal, opVal))+restValue;
+                else
+                    value=Double.toString(arithmeticOperationDivision(leftVal, rightVal))+restValue;
+                k=0;
+            }
+        }
+        
+        
+        //check for assignment
         int assignmentIndex=0;
         for(int j=0; j<variables.size(); j++){
             Variable vSecond=variables.get(j);
@@ -175,9 +217,10 @@ public class Interpretter_project {
                 v=new Variable(name, value);
                 variables.add(v);
             }
-            //WILL NEED A CHECK TO MAKE SURE VALUE FOR INTS IS AN INT AND NOT ARITHMETIC
             else{
-                v=new Variable(name, Integer.parseInt(value));
+                System.out.println("name " +name);
+                System.out.println("value "+value);
+                v=new Variable(name, Double.parseDouble(value));
                 variables.add(v);
             }
         }
@@ -185,32 +228,56 @@ public class Interpretter_project {
         else{
             if(operator.equals("=")){
                 if(variables.get(varIndex).getVariableType()=="int")
-                    variables.get(varIndex).setIntValue(Integer.parseInt(value));
+                    variables.get(varIndex).setDoubleValue(Integer.parseInt(value));
                 else
                     variables.get(varIndex).setStringValue(value);
             }
             //perform according operation
             else if(operator.equals("+=")){
-                variables.get(varIndex).setIntValue(variables.get(varIndex).getIntValue()+variables.get(assignmentIndex).getIntValue());
+                variables.get(varIndex).setDoubleValue(variables.get(varIndex).getIntValue()+variables.get(assignmentIndex).getIntValue());
             }
             else if(operator.equals("-=")){
-                variables.get(varIndex).setIntValue(variables.get(varIndex).getIntValue()-variables.get(assignmentIndex).getIntValue());
+                variables.get(varIndex).setDoubleValue(variables.get(varIndex).getIntValue()-variables.get(assignmentIndex).getIntValue());
             }
             else if(operator.equals("*=")){
-                variables.get(varIndex).setIntValue(variables.get(varIndex).getIntValue()*variables.get(assignmentIndex).getIntValue());
+                variables.get(varIndex).setDoubleValue(variables.get(varIndex).getIntValue()*variables.get(assignmentIndex).getIntValue());
             }
             else if(operator.equals("/=")){
-                variables.get(varIndex).setIntValue(variables.get(varIndex).getIntValue()/variables.get(assignmentIndex).getIntValue());
+                variables.get(varIndex).setDoubleValue(variables.get(varIndex).getIntValue()/variables.get(assignmentIndex).getIntValue());
             }
             else if(operator.equals("^=")){
-                variables.get(varIndex).setIntValue(variables.get(varIndex).getIntValue()^variables.get(assignmentIndex).getIntValue());
+                variables.get(varIndex).setDoubleValue(variables.get(varIndex).getIntValue()^variables.get(assignmentIndex).getIntValue());
             }
             else if(operator.equals("%=")){
-                variables.get(varIndex).setIntValue(variables.get(varIndex).getIntValue()%variables.get(assignmentIndex).getIntValue());
+                variables.get(varIndex).setDoubleValue(variables.get(varIndex).getIntValue()%variables.get(assignmentIndex).getIntValue());
             }
             
         }
         return variables;
+    }
+    
+    static int arithmeticOperation(int left, int right, String operation){
+        if(operation.equals("+")){
+            return left+right;
+        }
+        else if(operation.equals("-")){
+            return left-right;
+        }
+        else if(operation.equals("*")){
+            return left*right;
+        }
+        else if(operation.equals("/")){
+            return left/right;
+        }
+        else if(operation.equals("%")){
+            return left%right;
+        }
+        else{
+            return left^right;
+        }
+    }
+    static Double arithmeticOperationDivision(int left, int right){
+        return 1.0*left/right;
     }
     
     static String readFile(String path, Charset encoding) throws IOException{
