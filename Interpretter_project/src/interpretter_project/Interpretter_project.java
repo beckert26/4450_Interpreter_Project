@@ -23,8 +23,8 @@ public class Interpretter_project {
      */
     public static void main(String[] args) throws IOException {
         //read file in
-        String file=readFile("python_test_code.py", StandardCharsets.US_ASCII);
-        
+//        String file=readFile("python_test_code.py", StandardCharsets.US_ASCII);
+        String file=readFile("test.py", StandardCharsets.US_ASCII);
 //        System.out.println("Characters in file:\n");
 //        for(int i=0; i<=file.length()-1; i++) {
 //            if(file.charAt(i)=='\n'){
@@ -44,28 +44,79 @@ public class Interpretter_project {
         System.out.println("\n\nFile separated:");
         
         //array list for variables
-        ArrayList<Variable> varaibles = new ArrayList<>();
+        ArrayList<Variable> variables = new ArrayList<>();
         String line="";
         String type="";
         for(int i=0; i<fileLines.size(); i++){
             line=fileLines.get(i);
             type=typeOfLine(line);
             
-            //System.out.println(line);
-            //System.out.println(type);
+//            System.out.println(line);
+//            System.out.println(type);
             
             if(type.equals("comment")){
                 continue;
             }
 
-            if(type.equals("print")){
+            else if(type.equals("print")){
                 handlePrint(line);
             }
+
+            else if(type.equals("variable")){
+                //check if variable already exists in variables then do this
+                Variable v=handleVariableDefinition(line);
+                variables.add(v);
+            }
+        }
+        
+        for(int j=0; j<variables.size(); j++){
+            Variable v=variables.get(j);
+            System.out.println(v.getName());
+            String vtype=v.getVariableType();
+            if(vtype=="int")
+                System.out.println(v.getIntValue());
+            else
+                System.out.println(v.getStringValue());
         }
         
         
         
         //function to see if line of code is variable declaration
+    }
+    
+    static Variable handleVariableDefinition(String line){
+        line=line.trim();
+        String name="";
+        int part=0;
+        char c=' ';
+        String value="";
+        Variable v;
+        boolean isString=false;
+        for(int i=0; i<=line.length()-1; i++) {
+            c=line.charAt(i);
+            //get variable name
+            if(c!='=' && c!=' ' && part==0){
+                name+=Character.toString(c);
+            }
+            //set part to 1 after = sign
+            else if(c=='=')
+                part++;
+            //let know the variable is a string
+            else if(c=='"'){
+                isString=true;
+            }
+            //add them to value
+            if(c!='"' && c!='=' && c!=' ' && part==1){
+                value+=Character.toString(c);
+            }
+	}
+        if(isString==true){
+            v=new Variable(name, value);
+        }
+        else{
+            v=new Variable(name, Integer.parseInt(value));
+        }
+        return v;
     }
     
     static String readFile(String path, Charset encoding) throws IOException{
@@ -101,6 +152,8 @@ public class Interpretter_project {
         return fileList;
     }
     
+    
+    
      static String typeOfLine(String line){
         //System.out.println(line);
         line=line.trim();
@@ -122,12 +175,10 @@ public class Interpretter_project {
             return"while";
         else
             return"variable";
-        
-            
-
     }
 
     static void handlePrint(String line) {
+        System.out.println(line);
         line=line.trim();
         String meat = line.substring(6,line.length()-1);
         for(int i = 0; i< meat.length(); i++) {

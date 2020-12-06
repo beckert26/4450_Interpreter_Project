@@ -1,5 +1,12 @@
-x = 10
-x = x + 5
-print(x)
-if x==10:
-    x+=1
+# Pokemon master name
+name = "Ash Ketchum"
+
+# Pokemon Health Points
+charmender_HP = 110
+squirtle_HP = 125
+bulbasaur_HP = 150
+
+# Pokemon Attack Points
+charmender_attack = 40
+squirtle_attack = 35
+bulbasaur_attack = 25
