@@ -23,8 +23,8 @@ public class Interpretter_project {
      */
     public static void main(String[] args) throws IOException {
         //read file in
-//        String file=readFile("python_test_code.py", StandardCharsets.US_ASCII);
-        String file=readFile("test.py", StandardCharsets.US_ASCII);
+        String file=readFile("python_test_code.py", StandardCharsets.US_ASCII);
+//        String file=readFile("test.py", StandardCharsets.US_ASCII);
         
         
         ArrayList<String> fileLines = new ArrayList<>();
@@ -47,7 +47,7 @@ public class Interpretter_project {
             }
 
             else if(type.equals("print")){
-                handlePrint(line);
+                handlePrint(line, variables);
             }
 
             else if(type.equals("variable")){
@@ -55,15 +55,15 @@ public class Interpretter_project {
             }
         }
         
-        for(int j=0; j<variables.size(); j++){
-            Variable v=variables.get(j);
-            System.out.println(v.getName());
-            String vtype=v.getVariableType();
-            if(vtype=="double")
-                System.out.println(v.getDoubleValue());
-            else
-                System.out.println(v.getStringValue());
-        }
+//        for(int j=0; j<variables.size(); j++){
+//            Variable v=variables.get(j);
+//            System.out.println(v.getName());
+//            String vtype=v.getVariableType();
+//            if(vtype=="double")
+//                System.out.println(v.getDoubleValue());
+//            else
+//                System.out.println(v.getStringValue());
+//        }
         
         
         
@@ -153,8 +153,8 @@ public class Interpretter_project {
             String left="";
             String right="";
             String restValue="";
-            int leftVal=0;
-            int rightVal=0;
+            double leftVal=0;
+            double rightVal=0;
             if(cVal=='+' || cVal=='*' || cVal=='/' || cVal=='%' || cVal=='^' || (cVal=='-' && k!=0) ){
                 opVal=Character.toString(cVal);
                 
@@ -177,12 +177,9 @@ public class Interpretter_project {
                     }
                 }
                 
-                leftVal=Integer.parseInt(left);
-                rightVal=Integer.parseInt(right);
-                if(!opVal.equals("/"))
-                    value=Integer.toString(arithmeticOperation(leftVal, rightVal, opVal))+restValue;
-                else
-                    value=Double.toString(arithmeticOperationDivision(leftVal, rightVal))+restValue;
+                leftVal=Double.parseDouble(left);
+                rightVal=Double.parseDouble(right);
+                value=Double.toString(arithmeticOperation(leftVal, rightVal, opVal))+restValue;
                 k=0;
             }
         }
@@ -200,12 +197,11 @@ public class Interpretter_project {
         if(exists==false){
         //figure out if value is an equation and do that first
             if(isString==true){
+                System.out.println("NAME: "+value);
                 v=new Variable(name, value);
                 variables.add(v);
             }
             else{
-                System.out.println("name " +name);
-                System.out.println("value "+value);
                 v=new Variable(name, Double.parseDouble(value));
                 variables.add(v);
             }
@@ -242,7 +238,7 @@ public class Interpretter_project {
         return variables;
     }
     
-    static int arithmeticOperation(int left, int right, String operation){
+    static double arithmeticOperation(double left, double right, String operation){
         if(operation.equals("+")){
             return left+right;
         }
@@ -259,11 +255,8 @@ public class Interpretter_project {
             return left%right;
         }
         else{
-            return left^right;
+            return (int)left^(int)right;
         }
-    }
-    static Double arithmeticOperationDivision(int left, int right){
-        return 1.0*left/right;
     }
     
     static String readFile(String path, Charset encoding) throws IOException{
@@ -326,7 +319,7 @@ public class Interpretter_project {
             return"variable";
     }
 
-    static void handlePrint(String line) {
+    static void handlePrint(String line, ArrayList<Variable> variables) {
         //System.out.println(line);
         line=line.trim();
         String meat = line.substring(6,line.length()-1);
@@ -335,9 +328,10 @@ public class Interpretter_project {
             // Prints strings inside of print statements with " as the char
             if(meat.charAt(i)=='+') {
                 //check if buildString equals a var name currently saved
-                if(buildString.equals("name") || buildString.equals("beginning") || buildString.equals("end")) {
-                    System.out.print(buildString);
-                }
+                printVariableValue(buildString, variables);
+//                if(buildString.equals("name") || buildString.equals("beginning") || buildString.equals("end")) {
+//                    System.out.print(buildString);
+//                }
                 buildString = "";
             }
             buildString += meat.charAt(i);
@@ -359,18 +353,34 @@ public class Interpretter_project {
                     varName += meat.charAt(i);
                     i++;
                 }
-                System.out.print(varName);
+                //HERE
+                printVariableValue(varName, variables);
                 //Check to see if variable name is in variable name list
             }
             if(i == meat.length()-1 && !buildString.equals("")) {
                 //Check to see if variable name is in variable name list
-                if(buildString.equals("beginning") || buildString.equals("end")) {
-                    System.out.print(buildString);
-                }
+                //HERE
+                printVariableValue(buildString, variables);
+//                if(buildString.equals("beginning") || buildString.equals("end")) {
+//                    System.out.print(buildString);
+//                }
             }
             
         }
         System.out.println("");
+    }
+    
+    static void printVariableValue(String buildString, ArrayList<Variable> variables){
+        for(int j=0; j<variables.size(); j++){
+            Variable v=variables.get(j);
+            String vtype=v.getVariableType();
+            if(v.getName().equals(buildString)){
+                if(vtype=="double")
+                    System.out.print(v.getDoubleValue());
+                else
+                    System.out.print(v.getStringValue());
+            }
+        }
     }
     
 }
