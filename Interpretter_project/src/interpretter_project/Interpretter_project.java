@@ -23,20 +23,9 @@ public class Interpretter_project {
      */
     public static void main(String[] args) throws IOException {
         //read file in
-//        String file=readFile("python_test_code.py", StandardCharsets.US_ASCII);
         String file=readFile("python_test_code.py", StandardCharsets.US_ASCII);
-//        System.out.println("Characters in file:\n");
-//        for(int i=0; i<=file.length()-1; i++) {
-//            if(file.charAt(i)=='\n'){
-//                System.out.print("NEW LINE HERE");
-//            }
-//            if(checkTab(file, i)){
-//                System.out.print("TAB HERE");
-//            } 
-//            System.out.println(file.charAt(i));
-//	}
+//        String file=readFile("test.py", StandardCharsets.US_ASCII);
         
-        //System.out.println("\nOriginal File:\n" +file);
         
         ArrayList<String> fileLines = new ArrayList<>();
         
@@ -62,11 +51,9 @@ public class Interpretter_project {
                 handlePrint(line);
             }
 
-            /*else if(type.equals("variable")){
-                //check if variable already exists in variables then do this
-                Variable v=handleVariableDefinition(line);
-                variables.add(v);
-            }*/
+            else if(type.equals("variable")){
+                variables=handleVariable(line,variables);
+            }
         }
         
         for(int j=0; j<variables.size(); j++){
@@ -84,39 +71,132 @@ public class Interpretter_project {
         //function to see if line of code is variable declaration
     }
     
-    static Variable handleVariableDefinition(String line){
+    static ArrayList<Variable> handleVariable(String line, ArrayList<Variable> va ){
+        ArrayList<Variable> variables=va;
         line=line.trim();
         String name="";
         int part=0;
         char c=' ';
         String value="";
         Variable v;
+        String operator="";
         boolean isString=false;
         for(int i=0; i<=line.length()-1; i++) {
             c=line.charAt(i);
-            //get variable name
-            if(c!='=' && c!=' ' && part==0){
-                name+=Character.toString(c);
-            }
-            //set part to 1 after = sign
-            else if(c=='=')
-                part++;
-            //let know the variable is a string
-            else if(c=='"'){
-                isString=true;
-            }
+            
             //add them to value
             if(c!='"' && c!='=' && c!=' ' && part==1){
                 value+=Character.toString(c);
             }
+            //get variable name
+            if(c!='=' && c!='+' && c!='-' && c!='*' && c!='/' && c!='^' && c!='%' && c!=' ' && part==0){
+                name+=Character.toString(c);
+            }
+            //HANDLE OPERATORS
+            //set part to 1 after = sign
+            else if(c=='='){
+                part++;
+                operator="=";
+            }
+            else if(c=='+' && line.charAt(i+1)=='='){
+                part++;
+                operator="+=";
+                i++;
+            }
+            else if(c=='-' && line.charAt(i+1)=='='){
+                part++;
+                operator="-=";
+                i++;
+            }
+            else if(c=='*' && line.charAt(i+1)=='='){
+                part++;
+                operator="*=";
+                i++;
+            }
+            else if(c=='/' && line.charAt(i+1)=='='){
+                part++;
+                operator="/=";
+                i++;
+            }
+            else if(c=='^' && line.charAt(i+1)=='='){
+                part++;
+                operator="^=";
+                i++;
+            }
+            else if(c=='%' && line.charAt(i+1)=='='){
+                part++;
+                operator="%=";
+                i++;
+            }
+            //let know the variable is a string
+            else if(c=='"'){
+                isString=true;
+                i++;
+            }
+            
 	}
-        if(isString==true){
-            v=new Variable(name, value);
+        //check if variable already exists
+        boolean exists=false;
+        int varIndex=0;
+        for(int j=0; j<variables.size(); j++){
+            Variable vExist=variables.get(j);
+            if(name.equals(vExist.getName())){
+                exists=true;
+                varIndex=j;
+            }
         }
+        
+        //second value
+        int assignmentIndex=0;
+        for(int j=0; j<variables.size(); j++){
+            Variable vSecond=variables.get(j);
+            if(value.equals(vSecond.getName())){
+                
+                assignmentIndex=j;
+            }
+        }
+        if(exists==false){
+        //figure out if value is an equation and do that first
+            if(isString==true){
+                v=new Variable(name, value);
+                variables.add(v);
+            }
+            //WILL NEED A CHECK TO MAKE SURE VALUE FOR INTS IS AN INT AND NOT ARITHMETIC
+            else{
+                v=new Variable(name, Integer.parseInt(value));
+                variables.add(v);
+            }
+        }
+        //handle operations with existing variable
         else{
-            v=new Variable(name, Integer.parseInt(value));
+            if(operator.equals("=")){
+                if(variables.get(varIndex).getVariableType()=="int")
+                    variables.get(varIndex).setIntValue(Integer.parseInt(value));
+                else
+                    variables.get(varIndex).setStringValue(value);
+            }
+            //perform according operation
+            else if(operator.equals("+=")){
+                variables.get(varIndex).setIntValue(variables.get(varIndex).getIntValue()+variables.get(assignmentIndex).getIntValue());
+            }
+            else if(operator.equals("-=")){
+                variables.get(varIndex).setIntValue(variables.get(varIndex).getIntValue()-variables.get(assignmentIndex).getIntValue());
+            }
+            else if(operator.equals("*=")){
+                variables.get(varIndex).setIntValue(variables.get(varIndex).getIntValue()*variables.get(assignmentIndex).getIntValue());
+            }
+            else if(operator.equals("/=")){
+                variables.get(varIndex).setIntValue(variables.get(varIndex).getIntValue()/variables.get(assignmentIndex).getIntValue());
+            }
+            else if(operator.equals("^=")){
+                variables.get(varIndex).setIntValue(variables.get(varIndex).getIntValue()^variables.get(assignmentIndex).getIntValue());
+            }
+            else if(operator.equals("%=")){
+                variables.get(varIndex).setIntValue(variables.get(varIndex).getIntValue()%variables.get(assignmentIndex).getIntValue());
+            }
+            
         }
-        return v;
+        return variables;
     }
     
     static String readFile(String path, Charset encoding) throws IOException{
@@ -173,6 +253,8 @@ public class Interpretter_project {
             return "for";
         else if(line.substring(0,5).equals("while"))
             return"while";
+        else if(line.substring(0,5).equals("break"))
+            return "break";
         else
             return"variable";
     }
