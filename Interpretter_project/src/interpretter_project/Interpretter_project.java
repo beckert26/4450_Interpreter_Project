@@ -24,7 +24,7 @@ public class Interpretter_project {
     public static void main(String[] args) throws IOException {
         //read file in
         String file=readFile("python_test_code.py", StandardCharsets.US_ASCII);
-//        String file=readFile("test.py", StandardCharsets.US_ASCII);
+        String file=readFile("test.py", StandardCharsets.US_ASCII);
         
         
         ArrayList<String> fileLines = new ArrayList<>();
