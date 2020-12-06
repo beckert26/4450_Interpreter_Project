@@ -24,7 +24,7 @@ public class Interpretter_project {
     public static void main(String[] args) throws IOException {
         //read file in
 //        String file=readFile("python_test_code.py", StandardCharsets.US_ASCII);
-        String file=readFile("test.py", StandardCharsets.US_ASCII);
+        String file=readFile("python_test_code.py", StandardCharsets.US_ASCII);
 //        System.out.println("Characters in file:\n");
 //        for(int i=0; i<=file.length()-1; i++) {
 //            if(file.charAt(i)=='\n'){
@@ -105,6 +105,7 @@ public class Interpretter_project {
                 value+=Character.toString(c);
             }
 	}
+        //figure out if value is an equation and do that first
         if(isString==true){
             v=new Variable(name, value);
         }
