@@ -263,9 +263,19 @@ public class Interpretter_project {
         //System.out.println(line);
         line=line.trim();
         String meat = line.substring(6,line.length()-1);
+        String buildString = "";
         for(int i = 0; i< meat.length(); i++) {
             // Prints strings inside of print statements with " as the char
+            if(meat.charAt(i)=='+') {
+                //check if buildString equals a var name currently saved
+                if(buildString.equals("name") || buildString.equals("beginning") || buildString.equals("end")) {
+                    System.out.print(buildString);
+                }
+                buildString = "";
+            }
+            buildString += meat.charAt(i);
             if(meat.charAt(i)=='"') {
+                buildString = "";
                 i++;
                 String part = "";
                 while(meat.charAt(i)!='"') {
@@ -275,16 +285,7 @@ public class Interpretter_project {
                 System.out.print(part);
             }
             if(meat.charAt(i)=='(') {
-                /*int endIndex = 0;
-                String varPart = meat.substring(i+4);
-                for(int a = 0; a<varPart.length();a++) {
-                    if(varPart.charAt(a)!=')') {
-                        i++;
-                        endIndex++;
-                    }
-                }
-                String varName = varPart.substring(0,endIndex);
-                System.out.print(varName);*/
+                buildString = "";
                 i++;
                 String varName = "";
                 while(meat.charAt(i) != ')') {
@@ -292,7 +293,15 @@ public class Interpretter_project {
                     i++;
                 }
                 System.out.print(varName);
+                //Check to see if variable name is in variable name list
             }
+            if(i == meat.length()-1 && !buildString.equals("")) {
+                //Check to see if variable name is in variable name list
+                if(buildString.equals("beginning") || buildString.equals("end")) {
+                    System.out.print(buildString);
+                }
+            }
+            
         }
         System.out.println("");
     }
