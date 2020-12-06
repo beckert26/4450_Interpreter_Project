@@ -36,24 +36,38 @@ public class Interpretter_project {
         ArrayList<Variable> variables = new ArrayList<>();
         String line="";
         String type="";
+        int indent = 0;
         for(int i=0; i<fileLines.size(); i++){
             line=fileLines.get(i);
             type=typeOfLine(line);
             
-//            System.out.println(line);
-//            System.out.println(type);
-            
-            if(type.equals("comment")){
-                continue;
-            }
+            if (indent == getIndent(line)) {
 
-            else if(type.equals("print")){
-                handlePrint(line);
-            }
+//                System.out.println(i+1 + " : " + indent);
+    //            System.out.println(line);
+    //            System.out.println(type);
 
-            else if(type.equals("variable")){
-                variables=handleVariable(line,variables);
+                if(type.equals("comment")){
+                    continue;
+                }
+
+                else if(type.equals("print")){
+                    handlePrint(line);
+                }
+
+                /*
+                else if(type.equals("variable")){
+                    variables=handleVariable(line,variables);
+                }
+                */
+                
+                else if(type.equals("if")) {
+                    getComparison(line,0);
+                }
             }
+            /*else {
+                indent--;
+            }*/
         }
         
         for(int j=0; j<variables.size(); j++){
@@ -304,6 +318,79 @@ public class Interpretter_project {
             
         }
         System.out.println("");
+    }
+    
+    static boolean getComparison(String line, int number) {
+        line = line.trim();
+        ArrayList<Boolean> checks =  new ArrayList<Boolean>();
+        number = 1;
+        String comparitor = "";
+        String buildString = "";
+        String secondString = "";
+        for(int i = 3; i<line.length();i++) {
+            if(line.charAt(i)=='<' && line.charAt(i+1)=='=') {
+                comparitor = "<=";
+                i=i+2;
+                number = 2;
+            }
+            if(line.charAt(i)=='>' && line.charAt(i+1)=='=') {
+                comparitor = ">=";
+                i=i+2;
+                number = 2;
+            }
+            if(line.charAt(i)=='<' && line.charAt(i+1)!='=') {
+                comparitor = "<";
+                i=i+1;
+                number = 2;
+            }
+            if(line.charAt(i)=='>' && line.charAt(i+1)!='=') {
+                comparitor = ">";
+                i=i+1;
+                number = 2;
+            }
+            if(line.charAt(i)=='=' && line.charAt(i+1)=='=') {
+                comparitor = "==";
+                i=i+2;
+                number = 2;
+            }
+            if(line.charAt(i)=='!' && line.charAt(i+1)=='=') {
+                comparitor = "!=";
+                i=i+2;
+                number = 2;
+            }
+            if(line.charAt(i)==')' || line.charAt(i)==':') {
+                if(line.charAt(i)==')') {
+                    i++;
+                }
+                System.out.print(buildString);
+                System.out.print(" ");
+                System.out.print(comparitor);
+                System.out.print(" ");
+                System.out.print(secondString);
+            }
+            if(line.charAt(i)!=' ') {
+                if(number == 1) {
+                    buildString+=line.charAt(i);
+                }
+                else {
+                    secondString+=line.charAt(i);
+                }
+            }
+        }
+        
+        System.out.println("");
+        return true;
+    }
+    
+    static int getIndent(String line) {
+        if(line.equals("")) {
+            return 0;
+        }
+        int tabs = 0;
+        for(int i = 0;line.charAt(i)==' ';i++) {
+            tabs++;
+        }
+        return tabs/4;
     }
     
 }
