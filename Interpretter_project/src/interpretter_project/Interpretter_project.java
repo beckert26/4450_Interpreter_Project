@@ -24,7 +24,7 @@ public class Interpretter_project {
     public static void main(String[] args) throws IOException {
         //read file in
 //        String file=readFile("python_test_code.py", StandardCharsets.US_ASCII);
-        String file=readFile("test.py", StandardCharsets.US_ASCII);
+        String file=readFile("python_test_code.py", StandardCharsets.US_ASCII);
 //        System.out.println("Characters in file:\n");
 //        for(int i=0; i<=file.length()-1; i++) {
 //            if(file.charAt(i)=='\n'){
@@ -62,11 +62,11 @@ public class Interpretter_project {
                 handlePrint(line);
             }
 
-            else if(type.equals("variable")){
+            /*else if(type.equals("variable")){
                 //check if variable already exists in variables then do this
                 Variable v=handleVariableDefinition(line);
                 variables.add(v);
-            }
+            }*/
         }
         
         for(int j=0; j<variables.size(); j++){
@@ -178,7 +178,7 @@ public class Interpretter_project {
     }
 
     static void handlePrint(String line) {
-        System.out.println(line);
+        //System.out.println(line);
         line=line.trim();
         String meat = line.substring(6,line.length()-1);
         for(int i = 0; i< meat.length(); i++) {
