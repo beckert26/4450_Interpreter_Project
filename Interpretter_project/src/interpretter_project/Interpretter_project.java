@@ -57,11 +57,16 @@ public class Interpretter_project {
             if(type.equals("comment")){
                 continue;
             }
-            else if(type.equals("variable")){
+
+            else if(type.equals("print")){
+                handlePrint(line);
+            }
+
+            /*else if(type.equals("variable")){
                 //check if variable already exists in variables then do this
                 Variable v=handleVariableDefinition(line);
                 variables.add(v);
-            }
+            }*/
         }
         
         for(int j=0; j<variables.size(); j++){
@@ -171,6 +176,44 @@ public class Interpretter_project {
             return"while";
         else
             return"variable";
+    }
+
+    static void handlePrint(String line) {
+        //System.out.println(line);
+        line=line.trim();
+        String meat = line.substring(6,line.length()-1);
+        for(int i = 0; i< meat.length(); i++) {
+            // Prints strings inside of print statements with " as the char
+            if(meat.charAt(i)=='"') {
+                i++;
+                String part = "";
+                while(meat.charAt(i)!='"') {
+                    part += meat.charAt(i);
+                    i++;
+                }
+                System.out.print(part);
+            }
+            if(meat.charAt(i)=='(') {
+                /*int endIndex = 0;
+                String varPart = meat.substring(i+4);
+                for(int a = 0; a<varPart.length();a++) {
+                    if(varPart.charAt(a)!=')') {
+                        i++;
+                        endIndex++;
+                    }
+                }
+                String varName = varPart.substring(0,endIndex);
+                System.out.print(varName);*/
+                i++;
+                String varName = "";
+                while(meat.charAt(i) != ')') {
+                    varName += meat.charAt(i);
+                    i++;
+                }
+                System.out.print(varName);
+            }
+        }
+        System.out.println("");
     }
     
 }
