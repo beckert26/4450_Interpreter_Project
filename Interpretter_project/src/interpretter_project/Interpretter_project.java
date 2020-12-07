@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 /**
  *
@@ -41,11 +42,6 @@ public class Interpretter_project {
             type=typeOfLine(line);
             
             if (indent == getIndent(line)) {
-
-
-            else if(type.equals("print")){
-                handlePrint(line, variables);
-            }
 //                System.out.println(i+1 + " : " + indent);
     //            System.out.println(line);
     //            System.out.println(type);
@@ -55,17 +51,22 @@ public class Interpretter_project {
                 }
 
                 else if(type.equals("print")){
-                    handlePrint(line);
+                    handlePrint(line,variables);
                 }
 
-                /*
                 else if(type.equals("variable")){
                     variables=handleVariable(line,variables);
                 }
-                */
                 
                 else if(type.equals("if")) {
-                    getComparison(line,0);
+                    ArrayList<Boolean> checks =  new ArrayList<Boolean>();
+                    //Set to 3 for it, set to 5
+                    System.out.println(getComparison(line,variables,checks,3));
+                }
+                else if(type.equals("elif")) {
+                    ArrayList<Boolean> checks =  new ArrayList<Boolean>();
+                    //Set to 3 for it, set to 5
+                    System.out.println(getComparison(line,variables,checks,5));
                 }
             }
             /*else {
@@ -215,7 +216,7 @@ public class Interpretter_project {
         if(exists==false){
         //figure out if value is an equation and do that first
             if(isString==true){
-                System.out.println("NAME: "+value);
+                //System.out.println("NAME: "+value);
                 v=new Variable(name, value);
                 variables.add(v);
             }
@@ -400,15 +401,17 @@ public class Interpretter_project {
                     System.out.print(v.getStringValue());
             }
         }
+    }
 
-    static boolean getComparison(String line, int number) {
+    static boolean getComparison(String line, ArrayList<Variable> variables, ArrayList<Boolean> checks, int set) {
         line = line.trim();
-        ArrayList<Boolean> checks =  new ArrayList<Boolean>();
-        number = 1;
+        //System.out.println("hi");
+        //System.out.println(line);
+        int number = 1;
         String comparitor = "";
         String buildString = "";
         String secondString = "";
-        for(int i = 3; i<line.length();i++) {
+        for(int i = set; i<line.length();i++) {
             if(line.charAt(i)=='<' && line.charAt(i+1)=='=') {
                 comparitor = "<=";
                 i=i+2;
@@ -443,12 +446,261 @@ public class Interpretter_project {
                 if(line.charAt(i)==')') {
                     i++;
                 }
-                System.out.print(buildString);
+                double firstDub = 0;
+                double secondDub = 0;
+                if(Character.isDigit(buildString.charAt(0))) {
+                    firstDub = Double.parseDouble(buildString);
+                }
+                else {
+                    for(int j=0; j<variables.size(); j++){
+                        Variable v=variables.get(j);
+                        String vtype=v.getVariableType();
+                        if(v.getName().equals(buildString)){
+                           firstDub = v.getDoubleValue();
+                        }
+                    }
+                }
+                if(Character.isDigit(secondString.charAt(0))) {
+                    secondDub = Double.parseDouble(secondString);
+                }
+                else {
+                    for(int j=0; j<variables.size(); j++){
+                        Variable v=variables.get(j);
+                        String vtype=v.getVariableType();
+                        if(v.getName().equals(secondString)){
+                          secondDub = v.getDoubleValue();
+                        }
+                    }
+                }
+                System.out.print(firstDub);
                 System.out.print(" ");
                 System.out.print(comparitor);
                 System.out.print(" ");
-                System.out.print(secondString);
+                System.out.print(secondDub);
+                System.out.println("");
+                if(comparitor.equals(">=")) {
+                    if(firstDub >= secondDub) {
+                        checks.add(true);
+                    }
+                    else {
+                        checks.add(false);
+                    }
+                }
+                else if(comparitor.equals("<=")) {
+                    if(firstDub <= secondDub) {
+                        checks.add(true);
+                    }
+                    else {
+                        checks.add(false);
+                    }
+                }
+                else if(comparitor.equals(">")) {
+                    if(firstDub > secondDub) {
+                        checks.add(true);
+                    }
+                    else {
+                        checks.add(false);
+                    }
+                }
+                else if(comparitor.equals("<")) {
+                    if(firstDub < secondDub) {
+                        checks.add(true);
+                    }
+                    else {
+                        checks.add(false);
+                    }
+                }
+                else if(comparitor.equals("==")) {
+                    if(firstDub == secondDub) {
+                        checks.add(true);
+                    }
+                    else {
+                        checks.add(false);
+                    }
+                }
+                else if(comparitor.equals("!=")) {
+                    if(firstDub != secondDub) {
+                        checks.add(true);
+                    }
+                    else {
+                        checks.add(false);
+                    }
+                }
             }
+            if(line.substring(i).length() > 4) {
+                if(i>0 && line.charAt(i-1)==' ' && line.charAt(i)=='a' && line.charAt(i+1)=='n' && line.charAt(i+2)=='d' && line.charAt(i+3)==' ') {
+                    double firstDub = 0;
+                    double secondDub = 0;
+                    if(Character.isDigit(buildString.charAt(0))) {
+                        firstDub = Double.parseDouble(buildString);
+                    }
+                    else {
+                        for(int j=0; j<variables.size(); j++){
+                            Variable v=variables.get(j);
+                            String vtype=v.getVariableType();
+                            if(v.getName().equals(buildString)){
+                               firstDub = v.getDoubleValue();
+                            }
+                        }
+                    }
+                    if(Character.isDigit(secondString.charAt(0))) {
+                        secondDub = Double.parseDouble(secondString);
+                    }
+                    else {
+                        for(int j=0; j<variables.size(); j++){
+                            Variable v=variables.get(j);
+                            String vtype=v.getVariableType();
+                            if(v.getName().equals(secondString)){
+                              secondDub = v.getDoubleValue();
+                            }
+                        }
+                    }
+                    System.out.print(firstDub);
+                    System.out.print(" ");
+                    System.out.print(comparitor);
+                    System.out.print(" ");
+                    System.out.print(secondDub);
+                    System.out.println("");
+                    if(comparitor.equals(">=")) {
+                        if(firstDub >= secondDub) {
+                            checks.add(true);
+                        }
+                        else {
+                            checks.add(false);
+                        }
+                    }
+                    else if(comparitor.equals("<=")) {
+                        if(firstDub <= secondDub) {
+                            checks.add(true);
+                        }
+                        else {
+                            checks.add(false);
+                        }
+                    }
+                    else if(comparitor.equals(">")) {
+                        if(firstDub > secondDub) {
+                            checks.add(true);
+                        }
+                        else {
+                            checks.add(false);
+                        }
+                    }
+                    else if(comparitor.equals("<")) {
+                        if(firstDub < secondDub) {
+                            checks.add(true);
+                        }
+                        else {
+                            checks.add(false);
+                        }
+                    }
+                    else if(comparitor.equals("==")) {
+                        if(firstDub == secondDub) {
+                            checks.add(true);
+                        }
+                        else {
+                            checks.add(false);
+                        }
+                    }
+                    else if(comparitor.equals("!=")) {
+                        if(firstDub != secondDub) {
+                            checks.add(true);
+                        }
+                        else {
+                            checks.add(false);
+                        }
+                    }
+                    getComparison(line.substring(i+1),variables,checks,3);
+                    break;
+                }
+            }
+            
+            if(line.substring(i).length() > 3) {
+                if(i>0 && line.charAt(i-1)==' ' && line.charAt(i)=='o' && line.charAt(i+1)=='r' && line.charAt(i+2)==' ') {
+                    double firstDub = 0;
+                    double secondDub = 0;
+                    if(Character.isDigit(buildString.charAt(0))) {
+                        firstDub = Double.parseDouble(buildString);
+                    }
+                    else {
+                        for(int j=0; j<variables.size(); j++){
+                            Variable v=variables.get(j);
+                            String vtype=v.getVariableType();
+                            if(v.getName().equals(buildString)){
+                               firstDub = v.getDoubleValue();
+                            }
+                        }
+                    }
+                    if(Character.isDigit(secondString.charAt(0))) {
+                        secondDub = Double.parseDouble(secondString);
+                    }
+                    else {
+                        for(int j=0; j<variables.size(); j++){
+                            Variable v=variables.get(j);
+                            String vtype=v.getVariableType();
+                            if(v.getName().equals(secondString)){
+                              secondDub = v.getDoubleValue();
+                            }
+                        }
+                    }
+                    System.out.print(firstDub);
+                    System.out.print(" ");
+                    System.out.print(comparitor);
+                    System.out.print(" ");
+                    System.out.print(secondDub);
+                    System.out.println("");
+                    if(comparitor.equals(">=")) {
+                        if(firstDub >= secondDub) {
+                            checks.add(true);
+                        }
+                        else {
+                            checks.add(false);
+                        }
+                    }
+                    else if(comparitor.equals("<=")) {
+                        if(firstDub <= secondDub) {
+                            checks.add(true);
+                        }
+                        else {
+                            checks.add(false);
+                        }
+                    }
+                    else if(comparitor.equals(">")) {
+                        if(firstDub > secondDub) {
+                            checks.add(true);
+                        }
+                        else {
+                            checks.add(false);
+                        }
+                    }
+                    else if(comparitor.equals("<")) {
+                        if(firstDub < secondDub) {
+                            checks.add(true);
+                        }
+                        else {
+                            checks.add(false);
+                        }
+                    }
+                    else if(comparitor.equals("==")) {
+                        if(firstDub == secondDub) {
+                            checks.add(true);
+                        }
+                        else {
+                            checks.add(false);
+                        }
+                    }
+                    else if(comparitor.equals("!=")) {
+                        if(firstDub != secondDub) {
+                            checks.add(true);
+                        }
+                        else {
+                            checks.add(false);
+                        }
+                    }
+                    getComparison(line.substring(i),variables,checks,3);
+                    break;
+                }
+            }
+            
             if(line.charAt(i)!=' ') {
                 if(number == 1) {
                     buildString+=line.charAt(i);
@@ -459,8 +711,32 @@ public class Interpretter_project {
             }
         }
         
-        System.out.println("");
-        return true;
+        //FINAL CHECK!!
+        if(line.contains(" and ")) {
+            for(int j = 0; j<checks.size();j++) {
+                if(checks.get(j) == false) {
+                    //System.out.println(checks.get(j));
+                    return false;
+                }
+            }
+            return true;
+        }
+        else if(line.contains(" or ")) {
+            for(int j = 0; j<checks.size();j++) {
+                if(checks.get(j) == true) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        else {
+            if(checks.get(0) == true) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
     }
     
     static int getIndent(String line) {
