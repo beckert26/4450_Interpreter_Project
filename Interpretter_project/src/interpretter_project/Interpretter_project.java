@@ -42,6 +42,7 @@ public class Interpretter_project {
             type=typeOfLine(line);
             
             if (indent == getIndent(line)) {
+
 //                System.out.println(i+1 + " : " + indent);
     //            System.out.println(line);
     //            System.out.println(type);
@@ -51,12 +52,15 @@ public class Interpretter_project {
                 }
 
                 else if(type.equals("print")){
-                    handlePrint(line,variables);
+
+                    handlePrint(line, variables);
                 }
 
+                
                 else if(type.equals("variable")){
                     variables=handleVariable(line,variables);
                 }
+                
                 
                 else if(type.equals("if")) {
                     ArrayList<Boolean> checks =  new ArrayList<Boolean>();
@@ -101,10 +105,13 @@ public class Interpretter_project {
         boolean isString=false;
         for(int i=0; i<=line.length()-1; i++) {
             c=line.charAt(i);
-            
             //add them to value
-            if(c!='"' && c!='=' && c!=' ' && part==1){
-                value+=Character.toString(c);
+            if(c!='"' && c!='=' && part==1){
+                if(isString==true)
+                    value+=Character.toString(c);
+                else if(c!=' '){
+                    value+=Character.toString(c);
+                }
             }
             //get variable name
             if(c!='=' && c!='+' && c!='-' && c!='*' && c!='/' && c!='^' && c!='%' && c!=' ' && part==0){
@@ -216,7 +223,6 @@ public class Interpretter_project {
         if(exists==false){
         //figure out if value is an equation and do that first
             if(isString==true){
-                //System.out.println("NAME: "+value);
                 v=new Variable(name, value);
                 variables.add(v);
             }
@@ -348,9 +354,6 @@ public class Interpretter_project {
             if(meat.charAt(i)=='+') {
                 //check if buildString equals a var name currently saved
                 printVariableValue(buildString, variables);
-//                if(buildString.equals("name") || buildString.equals("beginning") || buildString.equals("end")) {
-//                    System.out.print(buildString);
-//                }
                 buildString = "";
             }
             buildString += meat.charAt(i);
@@ -372,17 +375,10 @@ public class Interpretter_project {
                     varName += meat.charAt(i);
                     i++;
                 }
-                //HERE
                 printVariableValue(varName, variables);
-                //Check to see if variable name is in variable name list
             }
             if(i == meat.length()-1 && !buildString.equals("")) {
-                //Check to see if variable name is in variable name list
-                //HERE
                 printVariableValue(buildString, variables);
-//                if(buildString.equals("beginning") || buildString.equals("end")) {
-//                    System.out.print(buildString);
-//                }
             }
             
         }
@@ -396,7 +392,11 @@ public class Interpretter_project {
             String vtype=v.getVariableType();
             if(v.getName().equals(buildString)){
                 if(vtype=="double")
-                    System.out.print(v.getDoubleValue());
+                    //print integers properly
+                    if((int)v.getDoubleValue()==v.getDoubleValue())
+                        System.out.print((int)v.getDoubleValue());
+                    else
+                        System.out.print(v.getDoubleValue());
                 else
                     System.out.print(v.getStringValue());
             }
@@ -404,6 +404,7 @@ public class Interpretter_project {
     }
 
     static boolean getComparison(String line, ArrayList<Variable> variables, ArrayList<Boolean> checks, int set) {
+
         line = line.trim();
         //System.out.println("hi");
         //System.out.println(line);
