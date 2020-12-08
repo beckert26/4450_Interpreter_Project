@@ -77,7 +77,7 @@ public class Interpretter_project {
                 indent--;
             }*/
         }
-        
+        //prints all variables and their values
 //        for(int j=0; j<variables.size(); j++){
 //            Variable v=variables.get(j);
 //            System.out.println(v.getName());
@@ -156,7 +156,6 @@ public class Interpretter_project {
             //let know the variable is a string
             else if(c=='"'){
                 isString=true;
-                i++;
             }
             
 	}
@@ -216,7 +215,6 @@ public class Interpretter_project {
         for(int j=0; j<variables.size(); j++){
             Variable vSecond=variables.get(j);
             if(value.equals(vSecond.getName())){
-                
                 assignmentIndex=j;
             }
         }
@@ -241,22 +239,22 @@ public class Interpretter_project {
             }
             //perform according operation
             else if(operator.equals("+=")){
-                variables.get(varIndex).setDoubleValue(variables.get(varIndex).getIntValue()+variables.get(assignmentIndex).getIntValue());
+                variables.get(varIndex).setDoubleValue(variables.get(varIndex).getDoubleValue()+variables.get(assignmentIndex).getDoubleValue());
             }
             else if(operator.equals("-=")){
-                variables.get(varIndex).setDoubleValue(variables.get(varIndex).getIntValue()-variables.get(assignmentIndex).getIntValue());
+                variables.get(varIndex).setDoubleValue(variables.get(varIndex).getDoubleValue()-variables.get(assignmentIndex).getDoubleValue());
             }
             else if(operator.equals("*=")){
-                variables.get(varIndex).setDoubleValue(variables.get(varIndex).getIntValue()*variables.get(assignmentIndex).getIntValue());
+                variables.get(varIndex).setDoubleValue(variables.get(varIndex).getDoubleValue()*variables.get(assignmentIndex).getDoubleValue());
             }
             else if(operator.equals("/=")){
-                variables.get(varIndex).setDoubleValue(variables.get(varIndex).getIntValue()/variables.get(assignmentIndex).getIntValue());
+                variables.get(varIndex).setDoubleValue(variables.get(varIndex).getDoubleValue()/variables.get(assignmentIndex).getDoubleValue());
             }
             else if(operator.equals("^=")){
-                variables.get(varIndex).setDoubleValue(variables.get(varIndex).getIntValue()^variables.get(assignmentIndex).getIntValue());
+                variables.get(varIndex).setDoubleValue((int)variables.get(varIndex).getDoubleValue()^(int)variables.get(assignmentIndex).getDoubleValue());
             }
             else if(operator.equals("%=")){
-                variables.get(varIndex).setDoubleValue(variables.get(varIndex).getIntValue()%variables.get(assignmentIndex).getIntValue());
+                variables.get(varIndex).setDoubleValue(variables.get(varIndex).getDoubleValue()%variables.get(assignmentIndex).getDoubleValue());
             }
             
         }
