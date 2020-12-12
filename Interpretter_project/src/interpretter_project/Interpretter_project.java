@@ -25,8 +25,8 @@ public class Interpretter_project {
     public static void main(String[] args) throws IOException {
         //read file in
       
-//        String file=readFile("python_test_code.py", StandardCharsets.US_ASCII);
-        String file=readFile("test.py", StandardCharsets.US_ASCII);
+        String file=readFile("python_test_code.py", StandardCharsets.US_ASCII);
+//        String file=readFile("test.py", StandardCharsets.US_ASCII);
         //String file=readFile("Joey_test.py", StandardCharsets.US_ASCII);
 
         
@@ -45,17 +45,36 @@ public class Interpretter_project {
             lineIfCheck[c] = false;
         }
         int indent = 0;
+        handleLines(fileLines, variables, lineIfCheck, indent);
+    }
+    
+    
+    static ArrayList<Variable> handleLines(ArrayList<String> fileLines, ArrayList<Variable> variables, boolean[] lineIfCheck, int indent) {
+        
+        
+        //array list for variables
+        String line="";
+        String type="";
+        String nextLine="";
+        
+        
+        //for breaks
+        Variable vBreak=new Variable("break", "false");
+        variables.add(vBreak);
+        
         for(int i=0; i<fileLines.size(); i++){
+            
             line=fileLines.get(i);
             type=typeOfLine(line);
             if(i<fileLines.size()-1) {
                 nextLine=fileLines.get(i+1);
             }
-            //System.out.println(i+1 + " : " + indent);
-            //System.out.println(i+1 + " : " + getIndent(line));
-            
+//            System.out.println(i+1 + " : " + indent);
+//            System.out.println(i+1 + " : " + getIndent(line));
+//            System.out.println((i+1)+": "+indent);
             if (indent == getIndent(line)) {
-    //            System.out.println(line);
+               
+//                System.out.println(line);
     //            System.out.println(type);
 
                 if(type.equals("comment")){
@@ -93,7 +112,7 @@ public class Interpretter_project {
                 else if(type.equals("elif")) {
                     ArrayList<Boolean> checks =  new ArrayList<Boolean>();
                     //Set to 3 for it, set to 5
-                    //System.out.println(lineIfCheck[indent]);
+                    
                     if(getComparison(line,variables,checks,5)==true && lineIfCheck[indent] == false) {
                         //System.out.println("Go In");
                         lineIfCheck[indent] = true;
@@ -120,13 +139,34 @@ public class Interpretter_project {
                 else if(type.equals("while")) {
                     ArrayList<Boolean> checks =  new ArrayList<Boolean>();
                     //Set to 3 for it, set to 5
-                    if(getComparison(line,variables,checks,6)==false) {
-                        //System.out.println("Go in");
-                        //bump indent and go into elif
+                    ArrayList<String> whileFileLines=new ArrayList<String>();
+                    int j=i+1;
+                        String whileLine="";
+                        int whileIndent=indent;
+                        int checkIndent=getIndent(nextLine);
+                        while(true){
+                            if(whileIndent<checkIndent && j<fileLines.size()){
+                                whileLine=fileLines.get(j);
+                                whileFileLines.add(whileLine);
+                                j++;
+                                if(j<fileLines.size()) {
+                                    nextLine=fileLines.get(j);
+                                }
+
+                                checkIndent = getIndent(nextLine);
+                                
+                            }
+                            else{
+                                break;
+                            }
                     }
-                    else {
-                        //System.out.println("Skip");
+                    //fix values
+                    while(getComparison(line,variables,checks,6)==true) {
+                            variables=handleLines(whileFileLines, variables, lineIfCheck, whileIndent+1);
                     }
+                    i+=whileFileLines.size();
+                    indent++;
+                    
                 }
                 else if(type.equals("for")){
                     //get whether condition is true or false
@@ -136,35 +176,84 @@ public class Interpretter_project {
                     //if it is then it increments the number
                     variables=handleForVariable(line, variables, varName);
                     //check if variable is < last number in range
-                    boolean forBool=handleForCondition(line, variables, varName);
+//                    boolean forBool=handleForCondition(line, variables, varName);
+                    
+                    
+                    ArrayList<Boolean> checks =  new ArrayList<Boolean>();
+                    //Set to 3 for it, set to 5
+                    ArrayList<String> forFileLines=new ArrayList<String>();
+                    int j=i+1;
+                        String forLine="";
+                        int forIndent=indent;
+                        int checkIndent=getIndent(nextLine);
+                        while(true){
+//                            System.out.println("whileindent: "+ whileIndent);
+//                            System.out.println("checkIndent: "+ checkIndent);
+                            if(forIndent<checkIndent && j<fileLines.size()){
+//                                System.out.println("nextline " + getIndent(nextLine));
+                                forLine=fileLines.get(j);
+                                forFileLines.add(forLine);
+//                                System.out.println(whileLine);
+                                j++;
+                                if(j<fileLines.size()) {
+                                    nextLine=fileLines.get(j);
+                                }
+
+                                checkIndent = getIndent(nextLine);
+                                
+                            }
+                            else{
+                                break;
+                            }
+                    }
+                    //fix values
+                    boolean breakFor=false;
+                    while(handleForCondition(line, variables, varName)==true && breakFor==false) {
+                            
+                            variables=handleLines(forFileLines, variables, lineIfCheck, forIndent+1);
+                            for(int n=0; n<variables.size(); n++){
+                                Variable v=variables.get(n);
+                                if(v.getName().equals(varName)){
+                                    v.setDoubleValue(v.getDoubleValue()+1);
+                                }
+                                if(v.getName().equals("break")){
+                                    if(v.getStringValue()=="true"){
+                                        v.setStringValue("false");
+                                        breakFor=true;
+                                    }
+                                }
+                            }
+                    }
+                    i+=forFileLines.size();
+                    indent++;
                     
                 }
-                if(getIndent(nextLine) < indent && !typeOfLine(nextLine).equals("empty") && !typeOfLine(nextLine).equals("comment") && i<fileLines.size()-1 ) {
-                    indent = getIndent(nextLine);
+                else if(type.equals("break")){
+                    for(int n=0; n<variables.size(); n++){
+                        Variable v=variables.get(n);
+                        if(v.getName().equals("break")){
+                            v.setStringValue("true");
+                        }
+                    }
+//                    break;
                 }
                 
+                
             }
-            /*else {
-                indent--;
-            }*/
-        }
-        //prints all variables and their values
-//        for(int j=0; j<variables.size(); j++){
-//            Variable v=variables.get(j);
-//            System.out.println(v.getName());
-//            String vtype=v.getVariableType();
-//            if(vtype=="double")
-//                System.out.println(v.getDoubleValue());
-//            else
-//                System.out.println(v.getStringValue());
-//        }
-        
-        
-        
-        //function to see if line of code is variable declaration
+            if(getIndent(nextLine) < indent && !typeOfLine(nextLine).equals("empty") && !typeOfLine(nextLine).equals("comment") && i<fileLines.size()-1 ) {
+                    indent = getIndent(nextLine);
+                }
     }
+       for(int i=0; i<variables.size(); i++){
+           Variable v=variables.get(i);
+//           System.out.println(v.getName()+": "+v.getDoubleValue());
+       }
+//       System.out.println();
+        return variables;
+   }
     
     static String getForVariableName(String line){
+        line=line.trim();
         String name="";
         char c=' ';
         for(int i=4; i<=line.length()-1; i++) {
@@ -179,7 +268,6 @@ public class Interpretter_project {
         return name;
     }
     static ArrayList<Variable> handleForVariable(String line, ArrayList<Variable> variables, String varName){
-        
         double variable=0;
         char c=' ';
         boolean afterRange=false;
@@ -194,164 +282,161 @@ public class Interpretter_project {
                 inVariables=true;
             }
         }
-        //if it's not get beginning value in range and set it to new variable in array with varName
-        if(inVariables==false){
-            
-            //get begin value
-            for(int i=0; i<=line.length()-1; i++) {
-                c=line.charAt(i);
-                if(afterRange){
-                    if(c!=','){
-                        beginString+=Character.toString(c);
-                    }
-                    else{
-                        break;
-                    }
+         //get begin value
+        for(int i=0; i<=line.length()-1; i++) {
+            c=line.charAt(i);
+            if(afterRange){
+                if(c!=','){
+                    beginString+=Character.toString(c);
                 }
-                if(c=='r' && line.charAt(i+1)=='a' && line.charAt(i+2)=='n' && line.charAt(i+3)=='g' && line.charAt(i+4)=='e' && line.charAt(i+5)=='('){ 
-                    afterRange=true;
-                    i=i+5;
-                }
-            }
-            
-            //handle whether begin string is number or variable
-            //check if begin is in variable arrray if it is not must be a number
-            boolean beginInVariables=false;
-            for(int i=0; i<variables.size(); i++){
-                Variable v=variables.get(i);
-                if(v.getName().equals(beginString)){
-                    //increment value
-                    beginInVariables=true;
-                    beginValue=v.getDoubleValue();
-                    Variable vNew=new Variable(varName, beginValue);
-                    variables.add(vNew);
+                else{
                     break;
                 }
             }
-            if(beginInVariables==false){
-                //check for int function
-                
-                boolean intFunction=false;
-                 int intindex=0;
-                 for(int k=0; k<beginString.length(); k++){
-                    char cVal=beginString.charAt(k);
-                    String opVal="";
-                    String left="";
-                    String right="";
-                    String restValue="";
-                    double leftVal=0;
-                    double rightVal=0;
-                    
+            if(c=='r' && line.charAt(i+1)=='a' && line.charAt(i+2)=='n' && line.charAt(i+3)=='g' && line.charAt(i+4)=='e' && line.charAt(i+5)=='('){ 
+                afterRange=true;
+                i=i+5;
+            }
+        }
+
+        //handle whether begin string is number or variable
+        //check if begin is in variable arrray if it is not must be a number
+        boolean beginInVariables=false;
+        for(int i=0; i<variables.size(); i++){
+            Variable v=variables.get(i);
+            if(v.getName().equals(beginString)){
+                //increment value
+                beginInVariables=true;
+                beginValue=v.getDoubleValue();
+                Variable vNew=new Variable(varName, beginValue);
+                variables.add(vNew);
+                break;
+            }
+        }
+
+            boolean intFunction=false;
+             int intindex=0;
+             for(int k=0; k<beginString.length(); k++){
+                char cVal=beginString.charAt(k);
+                String opVal="";
+                String left="";
+                String right="";
+                String restValue="";
+                double leftVal=0;
+                double rightVal=0;
+                if(beginString.length()>8){
                     if(cVal=='i' && beginString.charAt(k+1)=='n' && beginString.charAt(k+2)=='t' && beginString.charAt(k+3)=='('){
                         intindex=k;
                         k=k+3;
                         intFunction=true;
-                        
+
                     }
-                    if(cVal=='+' || cVal=='*' || cVal=='/' || cVal=='%' || cVal=='^' || (cVal=='-' || cVal==')' && k!=0) ){
-                        opVal=Character.toString(cVal);
-                        int p=0;
-                        for(int m=0; m<beginString.length(); m++){
+                }
+                if(cVal=='+' || cVal=='*' || cVal=='/' || cVal=='%' || cVal=='^' || (cVal=='-' || cVal==')' && k!=0) ){
+                    opVal=Character.toString(cVal);
+                    int p=0;
+                    for(int m=0; m<beginString.length(); m++){
 
-                            char cVal2=beginString.charAt(m);
-                            if(cVal2=='i' && beginString.charAt(m+1)=='n' && beginString.charAt(m+2)=='t' && beginString.charAt(m+3)=='('){
-                                intindex=m;
-                                m=m+3;
-                                intFunction=true;
-                                
-                                continue;
-                            }
+                        char cVal2=beginString.charAt(m);
+                        if(cVal2=='i' && beginString.charAt(m+1)=='n' && beginString.charAt(m+2)=='t' && beginString.charAt(m+3)=='('){
+                            intindex=m;
+                            m=m+3;
+                            intFunction=true;
 
-                            if((p==0 && cVal2!=' ' && cVal2!='+' && cVal2!='-' && cVal2!='*' && cVal2!='/' && cVal2!='%' && cVal2!='^' && cVal2!=')') || (cVal2=='-' && right.equals("") && p==0)){
-                                left+=Character.toString(cVal2);
-                            }
-                            else if((p==1 && cVal2!='-' && cVal2!=' ' && cVal2!='+' && cVal2!='*' && cVal2!='/' && cVal2!='%' && cVal2!='^' && cVal2!=')') || (cVal2=='-' && right.equals("") && p==1)){
-                                right+=Character.toString(cVal2);
-                            }
-                            else if(cVal2=='+' || cVal2=='-' || cVal2=='*' || cVal2=='/' || cVal2=='%' || cVal2=='^' || cVal2==')'){
-                                p++;
-                            }
-                            if(p>=2){
-                                restValue+=Character.toString(cVal2);
+                            continue;
+                        }
+
+                        if((p==0 && cVal2!=' ' && cVal2!='+' && cVal2!='-' && cVal2!='*' && cVal2!='/' && cVal2!='%' && cVal2!='^' && cVal2!=')') || (cVal2=='-' && right.equals("") && p==0)){
+                            left+=Character.toString(cVal2);
+                        }
+                        else if((p==1 && cVal2!='-' && cVal2!=' ' && cVal2!='+' && cVal2!='*' && cVal2!='/' && cVal2!='%' && cVal2!='^' && cVal2!=')') || (cVal2=='-' && right.equals("") && p==1)){
+                            right+=Character.toString(cVal2);
+                        }
+                        else if(cVal2=='+' || cVal2=='-' || cVal2=='*' || cVal2=='/' || cVal2=='%' || cVal2=='^' || cVal2==')'){
+                            p++;
+                        }
+                        if(p>=2){
+                            restValue+=Character.toString(cVal2);
+                        }
+                    }
+
+                    if(cVal==')' && intFunction==true){
+                        char intC=' ';
+                        String intStringVal="";
+                        int j=k-1;
+                        while(intC!='('){
+                            intC=beginString.charAt(j);
+                            //to fix reverse order
+                            if(intC!='(')
+                                intStringVal=Character.toString(intC)+intStringVal;
+                            j--;
+                        }
+                        double intVal=(int)Double.parseDouble(intStringVal);
+                        intStringVal=Double.toString(intVal);
+                        beginString=intStringVal+restValue;
+                        intFunction=false;
+//                            restValue=restValue.substring(1);
+                    }
+                    else{
+                        //check if leftVal is in variables array if it is get value else just parse
+                        boolean leftInVariable=false;
+                        for(int i=0; i<variables.size(); i++){
+                            Variable vLeft=variables.get(i);
+                            if(vLeft.getName().equals(left)){
+                                //increment value
+                                leftInVariable=true;
+                                leftVal=vLeft.getDoubleValue();
+                                break;
                             }
                         }
-//                        System.out.println(left);
-//                        System.out.println(right);
-                        //perform int function when parenthesis is closed
-                        if(cVal==')' && intFunction==true){
-                            char intC=' ';
-                            String intStringVal="";
-                            int j=k-1;
-                            while(intC!='('){
-                                intC=beginString.charAt(j);
-                                //to fix reverse order
-                                if(intC!='(')
-                                    intStringVal=Character.toString(intC)+intStringVal;
-                                j--;
+                        if(leftInVariable==false){
+                            leftVal=Double.parseDouble(left);
+                        }
+
+                        boolean rightInVariable=false;
+                        for(int i=0; i<variables.size(); i++){
+                            Variable vRight=variables.get(i);
+                            if(vRight.getName().equals(right)){
+                                //increment value
+                                rightInVariable=true;
+                                rightVal=vRight.getDoubleValue();
+                                break;
                             }
-                            double intVal=(int)Double.parseDouble(intStringVal);
-                            intStringVal=Double.toString(intVal);
-                            beginString=intStringVal+restValue;
-                            intFunction=false;
-//                            restValue=restValue.substring(1);
+                        }
+                        if(rightInVariable==false){
+                            rightVal=Double.parseDouble(right);
+                        }
+
+                        if(intFunction==true){
+                                beginString="int("+Double.toString(arithmeticOperation(leftVal, rightVal, opVal))+restValue;
                         }
                         else{
-                            //check if leftVal is in variables array if it is get value else just parse
-                            boolean leftInVariable=false;
-                            for(int i=0; i<variables.size(); i++){
-                                Variable vLeft=variables.get(i);
-                                if(vLeft.getName().equals(left)){
-                                    //increment value
-                                    leftInVariable=true;
-                                    leftVal=vLeft.getDoubleValue();
-                                    break;
-                                }
-                            }
-                            if(leftInVariable==false){
-                                leftVal=Double.parseDouble(left);
-                            }
-
-                            boolean rightInVariable=false;
-                            for(int i=0; i<variables.size(); i++){
-                                Variable vRight=variables.get(i);
-                                if(vRight.getName().equals(right)){
-                                    //increment value
-                                    rightInVariable=true;
-                                    rightVal=vRight.getDoubleValue();
-                                    break;
-                                }
-                            }
-                            if(rightInVariable==false){
-                                rightVal=Double.parseDouble(right);
-                            }
-
-                            if(intFunction==true){
-                                    beginString="int("+Double.toString(arithmeticOperation(leftVal, rightVal, opVal))+restValue;
-                            }
-                            else{
-                                beginString=Double.toString(arithmeticOperation(leftVal, rightVal, opVal))+restValue;
-                            }
+                            beginString=Double.toString(arithmeticOperation(leftVal, rightVal, opVal))+restValue;
                         }
-                        
-                        k=0;
                     }
-                   
+
+                    k=0;
                 }
-                
-                
+
+            }
+        //if it's not get beginning value in range and set it to new variable in array with varName
+        if(inVariables==false){
+            
+            if(beginInVariables==false){
+                //check for int function
                 beginValue=Double.parseDouble(beginString);
                 Variable vNew=new Variable(varName, beginValue);
                 variables.add(vNew);
             }
+        
             
         }
-            
         else{
             for(int i=0; i<variables.size(); i++){
                 Variable v=variables.get(i);
                 if(v.getName().equals(varName)){
                     //increment value
-                    v.setDoubleValue(v.getDoubleValue()+1);
+                    v.setDoubleValue(Double.parseDouble(beginString));
                 }
             }
         }
@@ -663,8 +748,10 @@ public class Interpretter_project {
         //handle operations with existing variable
         else{
             if(operator.equals("=")){
-                if(variables.get(varIndex).getVariableType()=="int")
+                if(variables.get(varIndex).getVariableType()=="double"){
+
                     variables.get(varIndex).setDoubleValue(Double.parseDouble(value));
+                }
                 else
                     variables.get(varIndex).setStringValue(value);
             }
