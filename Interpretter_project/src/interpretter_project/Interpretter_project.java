@@ -24,7 +24,7 @@ public class Interpretter_project {
      */
     public static void main(String[] args) throws IOException {
         //read file in
-        String file=readFile("python_test_code.py", StandardCharsets.US_ASCII);
+        String file=readFile("Joey_test.py", StandardCharsets.US_ASCII);
 //        String file=readFile("test.py", StandardCharsets.US_ASCII);
         
         
@@ -36,13 +36,22 @@ public class Interpretter_project {
         ArrayList<Variable> variables = new ArrayList<>();
         String line="";
         String type="";
+        String nextLine="";
+        boolean[] lineIfCheck = new boolean[100];
+        for(int c = 0; c<lineIfCheck.length;c++) {
+            lineIfCheck[c] = false;
+        }
         int indent = 0;
         for(int i=0; i<fileLines.size(); i++){
             line=fileLines.get(i);
             type=typeOfLine(line);
+            if(i<fileLines.size()-1) {
+                nextLine=fileLines.get(i+1);
+            }
+            //System.out.println(i+1 + " : " + indent);
+            //System.out.println(i+1 + " : " + getIndent(line));
             
             if (indent == getIndent(line)) {
-//                System.out.println(i+1 + " : " + indent);
     //            System.out.println(line);
     //            System.out.println(type);
 
@@ -51,22 +60,73 @@ public class Interpretter_project {
                 }
 
                 else if(type.equals("print")){
-                    handlePrint(line,variables);
+
+                    handlePrint(line, variables);
                 }
 
+                
                 else if(type.equals("variable")){
                     variables=handleVariable(line,variables);
                 }
                 
+                
                 else if(type.equals("if")) {
+                    lineIfCheck[indent] = false;
                     ArrayList<Boolean> checks =  new ArrayList<Boolean>();
                     //Set to 3 for it, set to 5
-                    System.out.println(getComparison(line,variables,checks,3));
+                    if(getComparison(line,variables,checks,3)==true) {
+                        //System.out.println(getComparison(line,variables,checks,3));
+                        //System.out.println("Go in");
+                        //System.out.println("hitting");
+                        lineIfCheck[indent] = true;
+                        //bump indent and go into if statement
+                        indent++;
+                        
+                    }
+                    else {
+                        
+                    }
                 }
                 else if(type.equals("elif")) {
                     ArrayList<Boolean> checks =  new ArrayList<Boolean>();
                     //Set to 3 for it, set to 5
-                    System.out.println(getComparison(line,variables,checks,5));
+                    //System.out.println(lineIfCheck[indent]);
+                    if(getComparison(line,variables,checks,5)==true && lineIfCheck[indent] == false) {
+                        //System.out.println("Go In");
+                        lineIfCheck[indent] = true;
+                        //bump indent and go into else
+                        indent++;
+                    }
+                    else {
+                        //System.out.println("Skip");
+                    }
+                }
+                else if(type.equals("else")) {
+                    ArrayList<Boolean> checks =  new ArrayList<Boolean>();
+                    //Set to 3 for it, set to 5
+                    if(lineIfCheck[indent] == false) {
+                        //System.out.println("Go in");
+                        lineIfCheck[indent] = false;
+                        //bump indent and go into else
+                        indent++;
+                    }
+                    else {
+                        //System.out.println("Skip");
+                    }
+                }
+                else if(type.equals("while")) {
+                    ArrayList<Boolean> checks =  new ArrayList<Boolean>();
+                    //Set to 3 for it, set to 5
+                    if(getComparison(line,variables,checks,6)==false) {
+                        //System.out.println("Go in");
+                        //bump indent and go into elif
+                    }
+                    else {
+                        //System.out.println("Skip");
+                    }
+                }
+                if(getIndent(nextLine) < indent && !typeOfLine(nextLine).equals("empty") && !typeOfLine(nextLine).equals("comment") && i<fileLines.size()-1 ) {
+                    indent = getIndent(nextLine);
                 }
             }
             /*else {
@@ -101,10 +161,13 @@ public class Interpretter_project {
         boolean isString=false;
         for(int i=0; i<=line.length()-1; i++) {
             c=line.charAt(i);
-            
             //add them to value
-            if(c!='"' && c!='=' && c!=' ' && part==1){
-                value+=Character.toString(c);
+            if(c!='"' && c!='=' && part==1){
+                if(isString==true)
+                    value+=Character.toString(c);
+                else if(c!=' '){
+                    value+=Character.toString(c);
+                }
             }
             //get variable name
             if(c!='=' && c!='+' && c!='-' && c!='*' && c!='/' && c!='^' && c!='%' && c!=' ' && part==0){
@@ -216,7 +279,6 @@ public class Interpretter_project {
         if(exists==false){
         //figure out if value is an equation and do that first
             if(isString==true){
-                //System.out.println("NAME: "+value);
                 v=new Variable(name, value);
                 variables.add(v);
             }
@@ -348,9 +410,6 @@ public class Interpretter_project {
             if(meat.charAt(i)=='+') {
                 //check if buildString equals a var name currently saved
                 printVariableValue(buildString, variables);
-//                if(buildString.equals("name") || buildString.equals("beginning") || buildString.equals("end")) {
-//                    System.out.print(buildString);
-//                }
                 buildString = "";
             }
             buildString += meat.charAt(i);
@@ -372,17 +431,10 @@ public class Interpretter_project {
                     varName += meat.charAt(i);
                     i++;
                 }
-                //HERE
                 printVariableValue(varName, variables);
-                //Check to see if variable name is in variable name list
             }
             if(i == meat.length()-1 && !buildString.equals("")) {
-                //Check to see if variable name is in variable name list
-                //HERE
                 printVariableValue(buildString, variables);
-//                if(buildString.equals("beginning") || buildString.equals("end")) {
-//                    System.out.print(buildString);
-//                }
             }
             
         }
@@ -396,7 +448,11 @@ public class Interpretter_project {
             String vtype=v.getVariableType();
             if(v.getName().equals(buildString)){
                 if(vtype=="double")
-                    System.out.print(v.getDoubleValue());
+                    //print integers properly
+                    if((int)v.getDoubleValue()==v.getDoubleValue())
+                        System.out.print((int)v.getDoubleValue());
+                    else
+                        System.out.print(v.getDoubleValue());
                 else
                     System.out.print(v.getStringValue());
             }
@@ -404,6 +460,7 @@ public class Interpretter_project {
     }
 
     static boolean getComparison(String line, ArrayList<Variable> variables, ArrayList<Boolean> checks, int set) {
+
         line = line.trim();
         //System.out.println("hi");
         //System.out.println(line);
@@ -446,38 +503,50 @@ public class Interpretter_project {
                 if(line.charAt(i)==')') {
                     i++;
                 }
+                //New stuff
+                String check = containsOperation(buildString);
+                boolean checkBool = check.equals("");
+                //End new stuff
                 double firstDub = 0;
                 double secondDub = 0;
-                if(Character.isDigit(buildString.charAt(0))) {
+                if(checkBool == false) {
+                    String firstVar = separateFirstVariable(buildString, check);
+                    String secondVar = separateSecondVariable(buildString, check);
+                    double first = getDoubleVar(firstVar,variables);
+                    double second = getDoubleVar(secondVar,variables);
+                    firstDub = arithmeticOperation(first, second, check);
+                }
+                else if(Character.isDigit(buildString.charAt(0))) {
                     firstDub = Double.parseDouble(buildString);
                 }
                 else {
-                    for(int j=0; j<variables.size(); j++){
-                        Variable v=variables.get(j);
-                        String vtype=v.getVariableType();
-                        if(v.getName().equals(buildString)){
-                           firstDub = v.getDoubleValue();
-                        }
-                    }
+                    firstDub = getDoubleVar(buildString,variables);
                 }
-                if(Character.isDigit(secondString.charAt(0))) {
+                check = containsOperation(secondString);
+                checkBool = check.equals("");
+                if(checkBool == false) {
+                    String firstVar = separateFirstVariable(buildString, check);
+                    String secondVar = separateSecondVariable(buildString, check);
+                    double first = getDoubleVar(firstVar,variables);
+                    double second = getDoubleVar(secondVar,variables);
+                    secondDub = arithmeticOperation(first, second, check);
+                }
+                else if(Character.isDigit(secondString.charAt(0))) {
                     secondDub = Double.parseDouble(secondString);
                 }
                 else {
-                    for(int j=0; j<variables.size(); j++){
-                        Variable v=variables.get(j);
-                        String vtype=v.getVariableType();
-                        if(v.getName().equals(secondString)){
-                          secondDub = v.getDoubleValue();
-                        }
-                    }
+                    secondDub = getDoubleVar(secondString,variables);
                 }
+                
+                /*
                 System.out.print(firstDub);
                 System.out.print(" ");
                 System.out.print(comparitor);
                 System.out.print(" ");
                 System.out.print(secondDub);
                 System.out.println("");
+                */
+                
                 if(comparitor.equals(">=")) {
                     if(firstDub >= secondDub) {
                         checks.add(true);
@@ -529,38 +598,46 @@ public class Interpretter_project {
             }
             if(line.substring(i).length() > 4) {
                 if(i>0 && line.charAt(i-1)==' ' && line.charAt(i)=='a' && line.charAt(i+1)=='n' && line.charAt(i+2)=='d' && line.charAt(i+3)==' ') {
+                    String check = containsOperation(buildString);
+                    boolean checkBool = check.equals("");
                     double firstDub = 0;
                     double secondDub = 0;
-                    if(Character.isDigit(buildString.charAt(0))) {
+                    if(checkBool == false) {
+                        String firstVar = separateFirstVariable(buildString, check);
+                        String secondVar = separateSecondVariable(buildString, check);
+                        double first = getDoubleVar(firstVar,variables);
+                        double second = getDoubleVar(secondVar,variables);
+                        firstDub = arithmeticOperation(first, second, check);
+                    }
+                    else if(Character.isDigit(buildString.charAt(0))) {
                         firstDub = Double.parseDouble(buildString);
                     }
                     else {
-                        for(int j=0; j<variables.size(); j++){
-                            Variable v=variables.get(j);
-                            String vtype=v.getVariableType();
-                            if(v.getName().equals(buildString)){
-                               firstDub = v.getDoubleValue();
-                            }
-                        }
+                        firstDub = getDoubleVar(buildString,variables);
                     }
-                    if(Character.isDigit(secondString.charAt(0))) {
+                    check = containsOperation(secondString);
+                    checkBool = check.equals("");
+                    if(checkBool == false) {
+                        String firstVar = separateFirstVariable(buildString, check);
+                        String secondVar = separateSecondVariable(buildString, check);
+                        double first = getDoubleVar(firstVar,variables);
+                        double second = getDoubleVar(secondVar,variables);
+                        secondDub = arithmeticOperation(first, second, check);
+                    }
+                    else if(Character.isDigit(secondString.charAt(0))) {
                         secondDub = Double.parseDouble(secondString);
                     }
                     else {
-                        for(int j=0; j<variables.size(); j++){
-                            Variable v=variables.get(j);
-                            String vtype=v.getVariableType();
-                            if(v.getName().equals(secondString)){
-                              secondDub = v.getDoubleValue();
-                            }
-                        }
+                        secondDub = getDoubleVar(secondString,variables);
                     }
+                    /*
                     System.out.print(firstDub);
                     System.out.print(" ");
                     System.out.print(comparitor);
                     System.out.print(" ");
                     System.out.print(secondDub);
                     System.out.println("");
+                    */
                     if(comparitor.equals(">=")) {
                         if(firstDub >= secondDub) {
                             checks.add(true);
@@ -616,38 +693,46 @@ public class Interpretter_project {
             
             if(line.substring(i).length() > 3) {
                 if(i>0 && line.charAt(i-1)==' ' && line.charAt(i)=='o' && line.charAt(i+1)=='r' && line.charAt(i+2)==' ') {
+                    String check = containsOperation(buildString);
+                    boolean checkBool = check.equals("");
                     double firstDub = 0;
                     double secondDub = 0;
                     if(Character.isDigit(buildString.charAt(0))) {
                         firstDub = Double.parseDouble(buildString);
                     }
-                    else {
-                        for(int j=0; j<variables.size(); j++){
-                            Variable v=variables.get(j);
-                            String vtype=v.getVariableType();
-                            if(v.getName().equals(buildString)){
-                               firstDub = v.getDoubleValue();
-                            }
-                        }
+                    else if(checkBool == false) {
+                        String firstVar = separateFirstVariable(buildString, check);
+                        String secondVar = separateSecondVariable(buildString, check);
+                        double first = getDoubleVar(firstVar,variables);
+                        double second = getDoubleVar(secondVar,variables);
+                        firstDub = arithmeticOperation(first, second, check);
                     }
+                    else {
+                        firstDub = getDoubleVar(buildString,variables);
+                    }
+                    check = containsOperation(secondString);
+                    checkBool = check.equals("");
                     if(Character.isDigit(secondString.charAt(0))) {
                         secondDub = Double.parseDouble(secondString);
                     }
-                    else {
-                        for(int j=0; j<variables.size(); j++){
-                            Variable v=variables.get(j);
-                            String vtype=v.getVariableType();
-                            if(v.getName().equals(secondString)){
-                              secondDub = v.getDoubleValue();
-                            }
-                        }
+                    else if(checkBool == false) {
+                        String firstVar = separateFirstVariable(buildString, check);
+                        String secondVar = separateSecondVariable(buildString, check);
+                        double first = getDoubleVar(firstVar,variables);
+                        double second = getDoubleVar(secondVar,variables);
+                        secondDub = arithmeticOperation(first, second, check);
                     }
+                    else {
+                        secondDub = getDoubleVar(secondString,variables);
+                    }
+                    /*
                     System.out.print(firstDub);
                     System.out.print(" ");
                     System.out.print(comparitor);
                     System.out.print(" ");
                     System.out.print(secondDub);
                     System.out.println("");
+                    */
                     if(comparitor.equals(">=")) {
                         if(firstDub >= secondDub) {
                             checks.add(true);
@@ -700,8 +785,7 @@ public class Interpretter_project {
                     break;
                 }
             }
-            
-            if(line.charAt(i)!=' ') {
+            if(line.charAt(i)!=' ' && line.charAt(i)!='(') {
                 if(number == 1) {
                     buildString+=line.charAt(i);
                 }
@@ -739,7 +823,57 @@ public class Interpretter_project {
         }
     }
     
+    static double getDoubleVar(String s, ArrayList<Variable> variables) {
+        if(Character.isDigit(s.charAt(0))) {
+            return Double.parseDouble(s);
+        }
+        for(int j=0; j<variables.size(); j++){
+            Variable v=variables.get(j);
+            String vtype=v.getVariableType();
+            if(v.getName().equals(s)){
+               return v.getDoubleValue();
+            }
+        }
+        return 0;
+    }
+    
+    static String containsOperation(String s) {
+        //(+, -, *, /, %, ^)
+        if(s.contains("+")) {
+            return "+";
+        }
+        else if(s.contains("-")) {
+            return "-";
+        }
+        else if(s.contains("*")) {
+            return "*";
+        }
+        else if(s.contains("/")) {
+            return "/";
+        }
+        else if(s.contains("%")) {
+            return "%";
+        }
+        else if(s.contains("^")) {
+            return "^";
+        }
+        else {
+            return "";
+        }
+    }
+    
+    static String separateFirstVariable(String s, String op) {
+        int opIndex = s.indexOf(op);
+        return s.substring(0,opIndex).trim();
+    }
+    
+    static String separateSecondVariable(String s, String op) {
+        int opIndex = s.indexOf(op);
+        return s.substring(opIndex+1).trim();
+    }
+    
     static int getIndent(String line) {
+        //System.out.println(line);
         if(line.equals("")) {
             return 0;
         }
@@ -747,6 +881,7 @@ public class Interpretter_project {
         for(int i = 0;line.charAt(i)==' ';i++) {
             tabs++;
         }
+        //System.out.println(tabs/4);
         return tabs/4;
     }
     
