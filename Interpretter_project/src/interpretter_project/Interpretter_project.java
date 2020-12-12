@@ -24,8 +24,8 @@ public class Interpretter_project {
      */
     public static void main(String[] args) throws IOException {
         //read file in
-        String file=readFile("python_test_code.py", StandardCharsets.US_ASCII);
-//        String file=readFile("test.py", StandardCharsets.US_ASCII);
+//        String file=readFile("python_test_code.py", StandardCharsets.US_ASCII);
+        String file=readFile("test.py", StandardCharsets.US_ASCII);
         
         
         ArrayList<String> fileLines = new ArrayList<>();
@@ -72,6 +72,17 @@ public class Interpretter_project {
                     //Set to 3 for it, set to 5
                     System.out.println(getComparison(line,variables,checks,5));
                 }
+                else if(type.equals("for")){
+                    //get whether condition is true or false
+                    //get variable value
+                    String varName=getForVariableName(line);
+                    //checks if variable is in variables if not adds it in and sets value to the beginning value of range
+                    //if it is then it increments the number
+                    variables=handleForVariable(line, variables, varName);
+                    //check if variable is < last number in range
+                    boolean forBool=handleForCondition(line, variables, varName);
+                    
+                }
             }
             /*else {
                 indent--;
@@ -91,6 +102,366 @@ public class Interpretter_project {
         
         
         //function to see if line of code is variable declaration
+    }
+    
+    static String getForVariableName(String line){
+        String name="";
+        char c=' ';
+        for(int i=4; i<=line.length()-1; i++) {
+            c=line.charAt(i);
+            if(c!=' '){
+                name+=Character.toString(c);
+            }
+            if(c==' '){
+                break;
+            }
+        }
+        return name;
+    }
+    static ArrayList<Variable> handleForVariable(String line, ArrayList<Variable> variables, String varName){
+        
+        double variable=0;
+        char c=' ';
+        boolean afterRange=false;
+        String beginString="";
+        double beginValue=0;
+        
+        //check if varName is in variables array
+        boolean inVariables=false;
+        for(int i=0; i<variables.size(); i++){
+            Variable v=variables.get(i);
+            if(v.getName().equals(varName)){
+                inVariables=true;
+            }
+        }
+        //if it's not get beginning value in range and set it to new variable in array with varName
+        if(inVariables==false){
+            
+            //get begin value
+            for(int i=0; i<=line.length()-1; i++) {
+                c=line.charAt(i);
+                if(afterRange){
+                    if(c!=','){
+                        beginString+=Character.toString(c);
+                    }
+                    else{
+                        break;
+                    }
+                }
+                if(c=='r' && line.charAt(i+1)=='a' && line.charAt(i+2)=='n' && line.charAt(i+3)=='g' && line.charAt(i+4)=='e' && line.charAt(i+5)=='('){ 
+                    afterRange=true;
+                    i=i+5;
+                }
+            }
+            
+            //handle whether begin string is number or variable
+            //check if begin is in variable arrray if it is not must be a number
+            boolean beginInVariables=false;
+            for(int i=0; i<variables.size(); i++){
+                Variable v=variables.get(i);
+                if(v.getName().equals(beginString)){
+                    //increment value
+                    beginInVariables=true;
+                    beginValue=v.getDoubleValue();
+                    Variable vNew=new Variable(varName, beginValue);
+                    variables.add(vNew);
+                    break;
+                }
+            }
+            if(beginInVariables==false){
+                //check for int function
+                
+                boolean intFunction=false;
+                 int intindex=0;
+                 for(int k=0; k<beginString.length(); k++){
+                    char cVal=beginString.charAt(k);
+                    String opVal="";
+                    String left="";
+                    String right="";
+                    String restValue="";
+                    double leftVal=0;
+                    double rightVal=0;
+                    
+                    if(cVal=='i' && beginString.charAt(k+1)=='n' && beginString.charAt(k+2)=='t' && beginString.charAt(k+3)=='('){
+                        intindex=k;
+                        k=k+3;
+                        intFunction=true;
+                        
+                    }
+                    if(cVal=='+' || cVal=='*' || cVal=='/' || cVal=='%' || cVal=='^' || (cVal=='-' || cVal==')' && k!=0) ){
+                        opVal=Character.toString(cVal);
+                        int p=0;
+                        for(int m=0; m<beginString.length(); m++){
+
+                            char cVal2=beginString.charAt(m);
+                            if(cVal2=='i' && beginString.charAt(m+1)=='n' && beginString.charAt(m+2)=='t' && beginString.charAt(m+3)=='('){
+                                intindex=m;
+                                m=m+3;
+                                intFunction=true;
+                                
+                                continue;
+                            }
+
+                            if((p==0 && cVal2!=' ' && cVal2!='+' && cVal2!='-' && cVal2!='*' && cVal2!='/' && cVal2!='%' && cVal2!='^' && cVal2!=')') || (cVal2=='-' && right.equals("") && p==0)){
+                                left+=Character.toString(cVal2);
+                            }
+                            else if((p==1 && cVal2!='-' && cVal2!=' ' && cVal2!='+' && cVal2!='*' && cVal2!='/' && cVal2!='%' && cVal2!='^' && cVal2!=')') || (cVal2=='-' && right.equals("") && p==1)){
+                                right+=Character.toString(cVal2);
+                            }
+                            else if(cVal2=='+' || cVal2=='-' || cVal2=='*' || cVal2=='/' || cVal2=='%' || cVal2=='^' || cVal2==')'){
+                                p++;
+                            }
+                            if(p>=2){
+                                restValue+=Character.toString(cVal2);
+                            }
+                        }
+//                        System.out.println(left);
+//                        System.out.println(right);
+                        //perform int function when parenthesis is closed
+                        if(cVal==')' && intFunction==true){
+                            char intC=' ';
+                            String intStringVal="";
+                            int j=k-1;
+                            while(intC!='('){
+                                intC=beginString.charAt(j);
+                                //to fix reverse order
+                                if(intC!='(')
+                                    intStringVal=Character.toString(intC)+intStringVal;
+                                j--;
+                            }
+                            double intVal=(int)Double.parseDouble(intStringVal);
+                            intStringVal=Double.toString(intVal);
+                            beginString=intStringVal+restValue;
+                            intFunction=false;
+//                            restValue=restValue.substring(1);
+                        }
+                        else{
+                            //check if leftVal is in variables array if it is get value else just parse
+                            boolean leftInVariable=false;
+                            for(int i=0; i<variables.size(); i++){
+                                Variable vLeft=variables.get(i);
+                                if(vLeft.getName().equals(left)){
+                                    //increment value
+                                    leftInVariable=true;
+                                    leftVal=vLeft.getDoubleValue();
+                                    break;
+                                }
+                            }
+                            if(leftInVariable==false){
+                                leftVal=Double.parseDouble(left);
+                            }
+
+                            boolean rightInVariable=false;
+                            for(int i=0; i<variables.size(); i++){
+                                Variable vRight=variables.get(i);
+                                if(vRight.getName().equals(right)){
+                                    //increment value
+                                    rightInVariable=true;
+                                    rightVal=vRight.getDoubleValue();
+                                    break;
+                                }
+                            }
+                            if(rightInVariable==false){
+                                rightVal=Double.parseDouble(right);
+                            }
+
+                            if(intFunction==true){
+                                    beginString="int("+Double.toString(arithmeticOperation(leftVal, rightVal, opVal))+restValue;
+                            }
+                            else{
+                                beginString=Double.toString(arithmeticOperation(leftVal, rightVal, opVal))+restValue;
+                            }
+                        }
+                        
+                        k=0;
+                    }
+                   
+                }
+                
+                
+                beginValue=Double.parseDouble(beginString);
+                Variable vNew=new Variable(varName, beginValue);
+                variables.add(vNew);
+            }
+            
+        }
+            
+        else{
+            for(int i=0; i<variables.size(); i++){
+                Variable v=variables.get(i);
+                if(v.getName().equals(varName)){
+                    //increment value
+                    v.setDoubleValue(v.getDoubleValue()+1);
+                }
+            }
+        }
+        
+        return variables;
+        
+    }
+    
+    static boolean handleForCondition(String line, ArrayList<Variable> variables, String varName ){
+        double varValue=0.0;
+        //get variables value to be checked against
+        for(int i=0; i<variables.size(); i++){
+            Variable v=variables.get(i);
+            if(v.getName().equals(varName)){
+                varValue=v.getDoubleValue();
+            }
+        }
+        
+        //get end String
+        String endString="";
+        char c=' ';
+        boolean afterComma=false;
+        for(int i=0; i<line.length(); i++) {
+            c=line.charAt(i);
+            if(afterComma){
+                if(c!=')' || line.charAt(i+1)!=':'){
+                   endString+=Character.toString(c);
+                }
+                else{
+                    break;
+                }
+            }
+            if(c==','){ 
+                afterComma=true;
+                i=i+1;
+            }
+        }
+        
+        //get end value
+        double endValue=0;
+        
+        boolean endInVariables=false;
+            for(int i=0; i<variables.size(); i++){
+                Variable v=variables.get(i);
+                if(v.getName().equals(endString)){
+                    //increment value
+                    endInVariables=true;
+                    endValue=v.getDoubleValue();
+                    break;
+                }
+            }
+            
+            if(endInVariables==false){
+                //check for int function and arithmetic and perform those operations
+                 boolean intFunction=false;
+                 int intindex=0;
+                 for(int k=0; k<endString.length(); k++){
+                    char cVal=endString.charAt(k);
+                    String opVal="";
+                    String left="";
+                    String right="";
+                    String restValue="";
+                    double leftVal=0;
+                    double rightVal=0;
+                    
+                    if(cVal=='i' && endString.charAt(k+1)=='n' && endString.charAt(k+2)=='t' && endString.charAt(k+3)=='('){
+                        intindex=k;
+                        k=k+3;
+                        intFunction=true;
+                        
+                    }
+                    if(cVal=='+' || cVal=='*' || cVal=='/' || cVal=='%' || cVal=='^' || (cVal=='-' || cVal==')' && k!=0) ){
+                        opVal=Character.toString(cVal);
+                        int p=0;
+                        for(int m=0; m<endString.length(); m++){
+
+                            char cVal2=endString.charAt(m);
+                            if(cVal2=='i' && endString.charAt(m+1)=='n' && endString.charAt(m+2)=='t' && endString.charAt(m+3)=='('){
+                                intindex=m;
+                                m=m+3;
+                                intFunction=true;
+                                
+                                continue;
+                            }
+
+                            if((p==0 && cVal2!=' ' && cVal2!='+' && cVal2!='-' && cVal2!='*' && cVal2!='/' && cVal2!='%' && cVal2!='^' && cVal2!=')') || (cVal2=='-' && right.equals("") && p==0)){
+                                left+=Character.toString(cVal2);
+                            }
+                            else if((p==1 && cVal2!='-' && cVal2!=' ' && cVal2!='+' && cVal2!='*' && cVal2!='/' && cVal2!='%' && cVal2!='^' && cVal2!=')') || (cVal2=='-' && right.equals("") && p==1)){
+                                right+=Character.toString(cVal2);
+                            }
+                            else if(cVal2=='+' || cVal2=='-' || cVal2=='*' || cVal2=='/' || cVal2=='%' || cVal2=='^' || cVal2==')'){
+                                p++;
+                            }
+                            if(p>=2){
+                                restValue+=Character.toString(cVal2);
+                            }
+                        }
+//                        System.out.println(left);
+//                        System.out.println(right);
+                        //perform int function when parenthesis is closed
+                        if(cVal==')' && intFunction==true){
+                            char intC=' ';
+                            String intStringVal="";
+                            int j=k-1;
+                            while(intC!='('){
+                                intC=endString.charAt(j);
+                                //to fix reverse order
+                                if(intC!='(')
+                                    intStringVal=Character.toString(intC)+intStringVal;
+                                j--;
+                            }
+                            double intVal=(int)Double.parseDouble(intStringVal);
+                            intStringVal=Double.toString(intVal);
+                            endString=intStringVal+restValue;
+                            intFunction=false;
+//                            restValue=restValue.substring(1);
+                        }
+                        else{
+                            //check if leftVal is in variables array if it is get value else just parse
+                            boolean leftInVariable=false;
+                            for(int i=0; i<variables.size(); i++){
+                                Variable vLeft=variables.get(i);
+                                if(vLeft.getName().equals(left)){
+                                    //increment value
+                                    leftInVariable=true;
+                                    leftVal=vLeft.getDoubleValue();
+                                    break;
+                                }
+                            }
+                            if(leftInVariable==false){
+                                leftVal=Double.parseDouble(left);
+                            }
+
+                            boolean rightInVariable=false;
+                            for(int i=0; i<variables.size(); i++){
+                                Variable vRight=variables.get(i);
+                                if(vRight.getName().equals(right)){
+                                    //increment value
+                                    rightInVariable=true;
+                                    rightVal=vRight.getDoubleValue();
+                                    break;
+                                }
+                            }
+                            if(rightInVariable==false){
+                                rightVal=Double.parseDouble(right);
+                            }
+
+                            if(intFunction==true){
+                                    endString="int("+Double.toString(arithmeticOperation(leftVal, rightVal, opVal))+restValue;
+                            }
+                            else{
+                                endString=Double.toString(arithmeticOperation(leftVal, rightVal, opVal))+restValue;
+                            }
+                        }
+                        
+                        k=0;
+                    }
+                   
+                }
+                 
+                 endValue=Double.parseDouble(endString);
+                
+            }
+        if(varValue<endValue){
+            return true;
+        }
+        else{
+            return false;
+        }
     }
     
     static ArrayList<Variable> handleVariable(String line, ArrayList<Variable> va ){
@@ -153,7 +524,7 @@ public class Interpretter_project {
                 operator="%=";
                 i++;
             }
-            //let know the variable is a string
+            //is the variable is a string
             else if(c=='"'){
                 isString=true;
             }
@@ -233,7 +604,7 @@ public class Interpretter_project {
         else{
             if(operator.equals("=")){
                 if(variables.get(varIndex).getVariableType()=="int")
-                    variables.get(varIndex).setDoubleValue(Integer.parseInt(value));
+                    variables.get(varIndex).setDoubleValue(Double.parseDouble(value));
                 else
                     variables.get(varIndex).setStringValue(value);
             }
