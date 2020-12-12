@@ -45,17 +45,148 @@ public class Interpretter_project {
             lineIfCheck[c] = false;
         }
         int indent = 0;
+        handleLines(fileLines, variables, lineIfCheck, indent);
+//        for(int i=0; i<fileLines.size(); i++){
+//            line=fileLines.get(i);
+//            type=typeOfLine(line);
+//            if(i<fileLines.size()-1) {
+//                nextLine=fileLines.get(i+1);
+//            }
+//            //System.out.println(i+1 + " : " + indent);
+//            //System.out.println(i+1 + " : " + getIndent(line));
+//            
+//            if (indent == getIndent(line)) {
+//    //            System.out.println(line);
+//    //            System.out.println(type);
+//
+//                if(type.equals("comment")){
+//                    continue;
+//                }
+//
+//                else if(type.equals("print")){
+//
+//                    handlePrint(line, variables);
+//                }
+//
+//                
+//                else if(type.equals("variable")){
+//                    variables=handleVariable(line,variables);
+//                }
+//                
+//                
+//                else if(type.equals("if")) {
+//                    lineIfCheck[indent] = false;
+//                    ArrayList<Boolean> checks =  new ArrayList<Boolean>();
+//                    //Set to 3 for it, set to 5
+//                    if(getComparison(line,variables,checks,3)==true) {
+//                        //System.out.println(getComparison(line,variables,checks,3));
+//                        //System.out.println("Go in");
+//                        //System.out.println("hitting");
+//                        lineIfCheck[indent] = true;
+//                        //bump indent and go into if statement
+//                        indent++;
+//                        
+//                    }
+//                    else {
+//                        
+//                    }
+//                }
+//                else if(type.equals("elif")) {
+//                    ArrayList<Boolean> checks =  new ArrayList<Boolean>();
+//                    //Set to 3 for it, set to 5
+//                    //System.out.println(lineIfCheck[indent]);
+//                    if(getComparison(line,variables,checks,5)==true && lineIfCheck[indent] == false) {
+//                        //System.out.println("Go In");
+//                        lineIfCheck[indent] = true;
+//                        //bump indent and go into else
+//                        indent++;
+//                    }
+//                    else {
+//                        //System.out.println("Skip");
+//                    }
+//                }
+//                else if(type.equals("else")) {
+//                    ArrayList<Boolean> checks =  new ArrayList<Boolean>();
+//                    //Set to 3 for it, set to 5
+//                    if(lineIfCheck[indent] == false) {
+//                        //System.out.println("Go in");
+//                        lineIfCheck[indent] = false;
+//                        //bump indent and go into else
+//                        indent++;
+//                    }
+//                    else {
+//                        //System.out.println("Skip");
+//                    }
+//                }
+//                else if(type.equals("while")) {
+//                    ArrayList<Boolean> checks =  new ArrayList<Boolean>();
+//                    //Set to 3 for it, set to 5
+//                    if(getComparison(line,variables,checks,6)==true) {
+//                        System.out.println("Go in");
+//                        indent++;
+//                    }
+//                    else {
+//                        //System.out.println("Skip");
+//                    }
+//                }
+//                else if(type.equals("for")){
+//                    //get whether condition is true or false
+//                    //get variable value
+//                    String varName=getForVariableName(line);
+//                    //checks if variable is in variables if not adds it in and sets value to the beginning value of range
+//                    //if it is then it increments the number
+//                    variables=handleForVariable(line, variables, varName);
+//                    //check if variable is < last number in range
+//                    boolean forBool=handleForCondition(line, variables, varName);
+//                    
+//                }
+//                if(getIndent(nextLine) < indent && !typeOfLine(nextLine).equals("empty") && !typeOfLine(nextLine).equals("comment") && i<fileLines.size()-1 ) {
+//                    indent = getIndent(nextLine);
+//                }
+//                
+//            }
+            /*else {
+                indent--;
+            }*/
+//        }
+        //prints all variables and their values
+//        for(int j=0; j<variables.size(); j++){
+//            Variable v=variables.get(j);
+//            System.out.println(v.getName());
+//            String vtype=v.getVariableType();
+//            if(vtype=="double")
+//                System.out.println(v.getDoubleValue());
+//            else
+//                System.out.println(v.getStringValue());
+//        }
+        
+        
+        
+        //function to see if line of code is variable declaration
+    }
+    
+    
+    static ArrayList<Variable> handleLines(ArrayList<String> fileLines, ArrayList<Variable> variables, boolean[] lineIfCheck, int indent) {
+        
+        
+        //array list for variables
+        String line="";
+        String type="";
+        String nextLine="";
+        
         for(int i=0; i<fileLines.size(); i++){
+            
             line=fileLines.get(i);
             type=typeOfLine(line);
             if(i<fileLines.size()-1) {
                 nextLine=fileLines.get(i+1);
             }
-            //System.out.println(i+1 + " : " + indent);
-            //System.out.println(i+1 + " : " + getIndent(line));
-            
+//            System.out.println(i+1 + " : " + indent);
+//            System.out.println(i+1 + " : " + getIndent(line));
+//            System.out.println((i+1)+": "+indent);
             if (indent == getIndent(line)) {
-    //            System.out.println(line);
+               
+//                System.out.println(line);
     //            System.out.println(type);
 
                 if(type.equals("comment")){
@@ -93,7 +224,7 @@ public class Interpretter_project {
                 else if(type.equals("elif")) {
                     ArrayList<Boolean> checks =  new ArrayList<Boolean>();
                     //Set to 3 for it, set to 5
-                    //System.out.println(lineIfCheck[indent]);
+                    
                     if(getComparison(line,variables,checks,5)==true && lineIfCheck[indent] == false) {
                         //System.out.println("Go In");
                         lineIfCheck[indent] = true;
@@ -120,13 +251,43 @@ public class Interpretter_project {
                 else if(type.equals("while")) {
                     ArrayList<Boolean> checks =  new ArrayList<Boolean>();
                     //Set to 3 for it, set to 5
-                    if(getComparison(line,variables,checks,6)==false) {
-                        //System.out.println("Go in");
-                        //bump indent and go into elif
+                    ArrayList<String> whileFileLines=new ArrayList<String>();
+                    int j=i+1;
+                        String whileLine="";
+                        int whileIndent=indent;
+                        int checkIndent=getIndent(nextLine);
+                        while(true){
+//                            System.out.println("whileindent: "+ whileIndent);
+//                            System.out.println("checkIndent: "+ checkIndent);
+                            if(whileIndent<checkIndent && j<fileLines.size()){
+//                                System.out.println("nextline " + getIndent(nextLine));
+                                whileLine=fileLines.get(j);
+                                whileFileLines.add(whileLine);
+//                                System.out.println(whileLine);
+                                j++;
+                                if(j<fileLines.size()) {
+                                    nextLine=fileLines.get(j);
+                                }
+
+                                checkIndent = getIndent(nextLine);
+                                
+                            }
+                            else{
+                                break;
+                            }
                     }
-                    else {
-                        //System.out.println("Skip");
+                    //fix values
+                    while(getComparison(line,variables,checks,6)==true) {
+                            variables=handleLines(whileFileLines, variables, lineIfCheck, whileIndent+1);
+    //                        for(int m=0; m<variables.size(); m++){
+    //                             Variable v=variables.get(m);
+    //                             System.out.println(v.getName()+": "+v.getDoubleValue());
+    //                         }
+    //                         System.out.println();
                     }
+                    i+=whileFileLines.size();
+                    indent++;
+                    
                 }
                 else if(type.equals("for")){
                     //get whether condition is true or false
@@ -139,30 +300,20 @@ public class Interpretter_project {
                     boolean forBool=handleForCondition(line, variables, varName);
                     
                 }
-                if(getIndent(nextLine) < indent && !typeOfLine(nextLine).equals("empty") && !typeOfLine(nextLine).equals("comment") && i<fileLines.size()-1 ) {
-                    indent = getIndent(nextLine);
-                }
+                
                 
             }
-            /*else {
-                indent--;
-            }*/
-        }
-        //prints all variables and their values
-//        for(int j=0; j<variables.size(); j++){
-//            Variable v=variables.get(j);
-//            System.out.println(v.getName());
-//            String vtype=v.getVariableType();
-//            if(vtype=="double")
-//                System.out.println(v.getDoubleValue());
-//            else
-//                System.out.println(v.getStringValue());
-//        }
-        
-        
-        
-        //function to see if line of code is variable declaration
+            if(getIndent(nextLine) < indent && !typeOfLine(nextLine).equals("empty") && !typeOfLine(nextLine).equals("comment") && i<fileLines.size()-1 ) {
+                    indent = getIndent(nextLine);
+                }
     }
+//       for(int i=0; i<variables.size(); i++){
+//           Variable v=variables.get(i);
+//           System.out.println(v.getName()+": "+v.getDoubleValue());
+//       }
+//       System.out.println();
+        return variables;
+   }
     
     static String getForVariableName(String line){
         String name="";
@@ -663,8 +814,10 @@ public class Interpretter_project {
         //handle operations with existing variable
         else{
             if(operator.equals("=")){
-                if(variables.get(varIndex).getVariableType()=="int")
+                if(variables.get(varIndex).getVariableType()=="double"){
+
                     variables.get(varIndex).setDoubleValue(Double.parseDouble(value));
+                }
                 else
                     variables.get(varIndex).setStringValue(value);
             }
