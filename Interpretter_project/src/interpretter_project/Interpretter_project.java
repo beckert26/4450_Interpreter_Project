@@ -128,9 +128,6 @@ public class Interpretter_project {
                         //System.out.println("Skip");
                     }
                 }
-                if(getIndent(nextLine) < indent && !typeOfLine(nextLine).equals("empty") && !typeOfLine(nextLine).equals("comment") && i<fileLines.size()-1 ) {
-                    indent = getIndent(nextLine);
-                }
                 else if(type.equals("for")){
                     //get whether condition is true or false
                     //get variable value
@@ -142,6 +139,10 @@ public class Interpretter_project {
                     boolean forBool=handleForCondition(line, variables, varName);
                     
                 }
+                if(getIndent(nextLine) < indent && !typeOfLine(nextLine).equals("empty") && !typeOfLine(nextLine).equals("comment") && i<fileLines.size()-1 ) {
+                    indent = getIndent(nextLine);
+                }
+                
             }
             /*else {
                 indent--;
