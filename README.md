@@ -13,11 +13,20 @@ One final thing that is important to mention about our program's main functional
 **Team Members**
 
 Our team includes:
+
 Brett Eckert (bdem7v)
+
 Email: bdem7v@mail.missouri.edu
+
+
 Joseph Burris (jpb68d)
+
 Email: jpb68d@umsystem.edu
-Ian Anderson (TBD)
+
+
+
+Ian Anderson (TBD
+
 Email: TBD
 
 **Requirements Met (And How We Met Them)**
