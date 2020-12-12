@@ -39,6 +39,10 @@ For this, whenever we see a line that matches "", we just skip onto the next lin
 
 We handled this similarly to the empty lines. If the line starts with "#", then we just skip the line, since nothing is to be done with it anyways.
 
+- Print-
+
+
+
 (TBD: If/else, Variable defs, While/For loops, Arithmetic ops, Assignment ops, Conditional states, comments, print)
 
 **How To Use/Run**
