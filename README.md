@@ -71,21 +71,23 @@ else) If the beginning of the line starts with "else", then we check to see if t
 
 - While/For loops-
 
-TBD
+These are handled separetly based on whether the beginning of a line starts with while or for. For while loops the interpretter checks to see whether the case in the interpretter is true or false if it is true it recursively calls all code with an indent greater than the indent of the while loop line. The recursive code returns the variables array and that is used to then check whether the while condition still holds up.
+
+For for loops the project first gets the variable inside the for loop and adds it as a variable with the value being set to the first value in the range function. Then the for loop operates similarily to while loop where it checks whether the variable in the for loop is less than the second value in the range function and if it is then it recursively runs all code with indent greater than the for loop indent and increments the variable + 1 each time. 
+
+Additonally, break statements are handled by checking whether or not a break variable in the variables array is true or false and if it is true the loop is exited.
 
 - Variable Definitions-
 
-TBD
+First any line that doesn't contain a keyword is considered a variable line and is handled using a function. The interpretter handles variable definitions by using a variable class and an array of variables. When handling variables we determine the name of the variable and the value by checking if the operand on the right hand side is a string or not. The variable is then added to the variables array and when it needs to be used in other lines our interpretter looks through the variable array and finds the variable with the matching name in order to get the value. All numbers are processed as doubles since python doesn't use types for variaable definition which simplifies the airthitmetic and math operations. When printing the interpretter will check whether the number is a whole number and print it as if it is an int when the number is a whole number.
 
 - Assignment Operations-
 
-TBD
+Assignment operators are handled within the variable definitions class since the line starts with a variable name. The interpretter checks for what kind of assignment operator is used and uses if else statements to perform the desired operation using the right hand side of the equations values.
 
 - Arithmetic Operations-
 
-TBD
-
-(TBD: If/else, Variable defs, While/For loops, Arithmetic ops, Assignment ops, Conditional states, comments, print) (Maybe also break)
+  Arithmetic operations are handled through a function that can be called where you send the operator and left and right hand side values. Our interpretter checks for whether or not it sees an arithmetic operator and if it does it gets the variable name or number on the left and right side of the operator and then gets the respective values for variable names using the variables array and sends the operation to our arithmetic operation function. These are used in for loops, if statements, and varaible defintions. 
 
 **How To Use/Run**
 
