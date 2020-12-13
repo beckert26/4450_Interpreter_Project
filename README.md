@@ -87,7 +87,7 @@ Assignment operators are handled within the variable definitions class since the
 
 - Arithmetic Operations-
 
-  Arithmetic operations are handled through a function that can be called where you send the operator and left and right hand side values. Our interpretter checks for whether or not it sees an arithmetic operator and if it does it gets the variable name or number on the left and right side of the operator and then gets the respective values for variable names using the variables array and sends the operation to our arithmetic operation function. These are used in for loops, if statements, and varaible defintions. 
+Arithmetic operations are handled through a function that can be called where you send the operator and left and right hand side values. Our interpretter checks for whether or not it sees an arithmetic operator and if it does it gets the variable name or number on the left and right side of the operator and then gets the respective values for variable names using the variables array and sends the operation to our arithmetic operation function. These are used in for loops, if statements, and varaible defintions. 
 
 **How To Use/Run**
 
