@@ -1,4 +1,5 @@
 package interpretter_project;
+import java.util.ArrayList;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -17,7 +18,7 @@ public class Variable {
     private double doubleValue;
     private char charValue;
     private boolean booleanValue;
-    
+
     private boolean isString=false;
     private boolean isInt=false;
     private boolean isDouble=false;
@@ -49,6 +50,7 @@ public class Variable {
         this.booleanValue=booleanValue;
         this.isBoolean=true;
     }
+    
 
     
     //Getters
@@ -95,6 +97,7 @@ public class Variable {
     public void setName(String name){
         this.name=name;
     }
+  
     public void setStringValue(String sValue){
         this.sValue=sValue;
     }

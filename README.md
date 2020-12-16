@@ -27,9 +27,9 @@ Email: jpb68d@umsystem.edu
 
 
 
-Ian Anderson (TBD)
+Ian Anderson (ilam56)
 
-Email: TBD
+Email: ilam56@umsystem.du
 
 **Requirements Met (And How We Met Them)**
 
@@ -39,7 +39,7 @@ For this, whenever we see a line that matches "", we just skip onto the next lin
 
 - Comments-
 
-We handled this similarly to the empty lines. If the line starts with "#", then we just skip the line, since nothing is to be done with it anyways.
+We handled this similarly to the empty lines. If the line starts with "#", then we just skip the line, since nothing is to be done with it anyways. Also handled multi-line comments by detecting line starting with "\"\"\"" and throwing away all lines until the same string appears again
 
 - Print-
 
@@ -87,7 +87,10 @@ Assignment operators are handled within the variable definitions class since the
 
 - Arithmetic Operations-
 
-Arithmetic operations are handled through a function that can be called where you send the operator and left and right hand side values. Our interpretter checks for whether or not it sees an arithmetic operator and if it does it gets the variable name or number on the left and right side of the operator and then gets the respective values for variable names using the variables array and sends the operation to our arithmetic operation function. These are used in for loops, if statements, and varaible defintions. When a line contains more than one arithmetic operation the interpretter continually performs operations on the left and right hand side so for example: 2* -5 +20 will first do 2*-5 which returns -10+20 and then it sees the "+" operator and gets the left and right hand side of +. Additionally, our interpretter accounts for negative numbers by including "-" as part of the value when getting the left and right hand side of an operator.
+Arithmetic operations are handled through a function that can be called where you send the operator and left and right hand side values. Our interpretter checks for whether or not it sees an arithmetic operator and if it does it gets the variable name or number on the left and right side of the operator and then gets the respective values for variable names using the variables array and sends the operation to our arithmetic operation function. These are used in for loops, if statements, and varaible defintions. When a line contains more than one arithmetic operation the interpretter continually performs operations using orders of operations. Is does this by creating an array or operations with both their left and right values. It then sorts these operations by orders of operations. It also checks for parenthesis and accounts for that in the orders of operations. It then does the calculations on the operation with the highest precedent. When a calculation is done it updates the left and right values of the operations surrounding it. The result of the final operation is then the result of the calculation.
+
+- Error Checking-
+The error checking we have implemented probably isn't enougn for much bonus, but it is better than nothing. It essentially produces an error whenever the parser runs into an error. It displays the line of the error, the line text, and the error the parser ran into. Note that if the error occured inside a for loop then it will display an error for both the outer for loop as well as where the error occured. In such situations the line with the actual error will be the last error printed.
 
 **How To Use/Run**
 
