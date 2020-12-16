@@ -52,7 +52,7 @@ for num in range(begin, end):
 
 
 # Some simple equations
-eq1 = 2 * -5 + 20
+eq1 = 2 + -5 * (20 + 2) * (5 + 1)
 print("EQ1: "+str(eq1))
 if(eq1 != 0):
     print("eq1 output not equal to 0")

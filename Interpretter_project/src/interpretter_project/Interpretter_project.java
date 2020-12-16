@@ -11,12 +11,26 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Scanner;
+
 
 /**
  *
  * @author brett
  */
+
+
+class Operation {
+    public Integer pVal = 0;
+    public Character operator;
+    public Integer pos;
+    public String left = "";
+    public String right = "";
+    public boolean exist = true;
+}
+
+
 public class Interpretter_project {
 
     /**
@@ -65,7 +79,8 @@ public class Interpretter_project {
         for(int i=0; i<fileLines.size(); i++){
             
             line=fileLines.get(i);
-            type=typeOfLine(line);
+            if(!type.equals("in-comment"))
+                type=typeOfLine(line);
             if(i<fileLines.size()-1) {
                 nextLine=fileLines.get(i+1);
             }
@@ -79,6 +94,18 @@ public class Interpretter_project {
 
                 if(type.equals("comment")){
                     continue;
+                }
+                
+                else if(type.equals("multi-line")){
+                    type = "in-comment";
+                    continue;
+                }
+                
+                else if(type.equals("in-comment")){
+                    if(line.contains("\"\"\"")){
+                        type = "comment";
+                        continue;
+                    }
                 }
 
                 else if(type.equals("print")){
@@ -240,7 +267,7 @@ public class Interpretter_project {
                 
                 
             }
-            if(getIndent(nextLine) < indent && !typeOfLine(nextLine).equals("empty") && !typeOfLine(nextLine).equals("comment") && i<fileLines.size()-1 ) {
+            if(getIndent(nextLine) < indent && !typeOfLine(nextLine).equals("empty") && !typeOfLine(nextLine).equals("comment") && !typeOfLine(nextLine).equals("multi-line") && !typeOfLine(nextLine).equals("in-comment") && i<fileLines.size()-1 ) {
                     indent = getIndent(nextLine);
                 }
     }
@@ -688,6 +715,151 @@ public class Interpretter_project {
         
         //second value
         //check whether right hand side has arthimetic and handle the arthimetic
+        ArrayList<Operation> ops;
+        ArrayList<Integer> opsInd = new ArrayList<Integer>();
+        ops = new ArrayList<Operation>();
+        ArrayList<Operation> ops2 = new ArrayList<Operation>();
+        Integer pVal = 0;
+        for(int k=0; k<value.length(); k++){
+            char cVal=value.charAt(k);
+            char cPrev = 'x';
+            if(k>0)
+                cPrev = value.charAt(k-1);
+            if(cVal=='+' || cVal=='*' || cVal=='/' || cVal=='%' || cVal=='^' || (cVal=='-' && !(k==0 || (cPrev=='+' || cPrev =='-' || cPrev =='*' || cPrev =='/' || cPrev == '^')))){
+                Operation newOp = new Operation();
+                newOp.operator = cVal;
+                newOp.pos = k;
+                newOp.pVal = pVal;
+                ops.add(newOp);
+                ops2.add(newOp);
+            }
+            else if (cVal =='('){
+                pVal++;
+            }
+            else if (cVal == ')' && pVal > 0){
+                pVal--;
+            }
+        }
+
+        Collections.reverse(ops);
+        Collections.reverse(opsInd);
+        for(int i=0; i<ops.size()-1; i++){
+            for(int j=0;j<ops.size()-i-1;j++)
+                if(opGreater(ops.get(j+1),ops.get(j))){
+                    Collections.swap(ops,j,j+1);
+                }
+
+        }
+        
+
+            
+        for(int i=0; i<ops.size(); i++){
+            Integer ind = ops.get(i).pos;
+            Character op = ops.get(i).operator;
+            String left="";
+            String right="";
+            for(int k=ind+1;k<value.length();k++){
+                char cVal = value.charAt(k);
+                if(((cVal=='+' || cVal=='-' || cVal=='*' || cVal=='/' || cVal=='%' || cVal=='^')&& !(cVal=='-' && right=="")) ){
+                    break;
+                }
+                else if(cVal=='(' || cVal==')'){
+                    continue;
+                }
+                else{
+                    right+= Character.toString(cVal);
+                }
+            }
+            int p = 0;
+            for(int k=ind-1;k>=0;k--){
+                char cVal = value.charAt(k);
+                if(cVal=='-' && p==0){
+                    left= Character.toString(cVal) + left;
+                    p++;
+                }
+                else if(cVal=='(' || cVal==')'){
+                    continue;
+                }
+                else if(((cVal=='+' || cVal=='-' || cVal=='*' || cVal=='/' || cVal=='%' || cVal=='^')&& !(cVal=='-' && p==0)) ){
+                    break;
+                }
+                else{
+                    left= Character.toString(cVal) + left;
+                }
+            }
+            ops.get(i).left = left;
+            ops.get(i).right = right;
+            
+        }
+        String result = "";
+        for(int i=0; i<ops.size(); i++){
+            Operation op = ops.get(i);
+            /*
+            System.out.print("left: " + op.left + "\n");
+            System.out.print("right: " + op.right + "\n");
+            System.out.print("op: " + op.operator + "\n");
+            System.out.print("p: " + op.pVal + "\n");
+            */
+            double leftVal = Double.parseDouble(op.left);
+            double rightVal = Double.parseDouble(op.right);
+            result = Double.toString(arithmeticOperation(leftVal,rightVal,Character.toString(op.operator)));
+            Integer smallestL = 99999;
+            Integer smallestR = 99999;
+            int smallestLInd = 0;
+            int smallestRInd = 0;
+            for(int j=0;j<ops.size();j++){
+                if(ops.get(j).exist){
+                    Integer diff = ops.get(i).pos - ops.get(j).pos;
+                    Integer diff2 = -diff;
+                    if(diff > 0 && diff < smallestL){
+                        smallestL = diff;
+                        smallestLInd = j;
+                    }
+                    if(diff2 > 0 && diff2 < smallestR){
+                        smallestR = diff2;
+                        smallestRInd = j;
+                    }
+                }
+            }
+            op.exist = false;
+            //System.out.print("result: " + result + "\n");
+            ops.get(smallestLInd).right = result;
+            ops.get(smallestRInd).left = result;
+        }
+        if(!result.equals("")){
+            value = result;
+        }
+        //System.out.print(value);
+        
+           
+                /*
+                int p=0;
+                for(int m=0; m<value.length(); m++){
+                    
+                    char cVal2=value.charAt(m);
+                    
+                    if((p==0 && cVal2!=' ' && cVal2!='+' && cVal2!='-' && cVal2!='*' && cVal2!='/' && cVal2!='%' && cVal2!='^') || (cVal2=='-' && right.equals("") && p==0)){
+                        left+=Character.toString(cVal2);
+                    }
+                    else if((p==1 && cVal2!='-' && cVal2!=' ' && cVal2!='+' && cVal2!='*' && cVal2!='/' && cVal2!='%' && cVal2!='^') || (cVal2=='-' && right.equals("") && p==1)){
+                        right+=Character.toString(cVal2);
+                    }
+                    else if(cVal2=='+' || cVal2=='-' || cVal2=='*' || cVal2=='/' || cVal2=='%' || cVal2=='^' ){
+                        p++;
+                    }
+                    if(p>=2){
+                        restValue+=Character.toString(cVal2);
+                    }
+                }
+                
+                
+                leftVal=Double.parseDouble(left);
+                rightVal=Double.parseDouble(right);
+                value=Double.toString(arithmeticOperation(leftVal, rightVal, opVal))+restValue;
+                k=0;
+            }    
+            */
+        /*
         for(int k=0; k<value.length(); k++){
             char cVal=value.charAt(k);
             String opVal="";
@@ -720,12 +892,12 @@ public class Interpretter_project {
                 
                 leftVal=Double.parseDouble(left);
                 rightVal=Double.parseDouble(right);
-                value=Double.toString(arithmeticOperation(leftVal, rightVal, opVal))+restValue;
+                value= Double.toString(arithmeticOperation(leftVal, rightVal, opVal))+restValue;
                 k=0;
             }
         }
         
-        
+        */
         //check for assignment
         int assignmentIndex=0;
         for(int j=0; j<variables.size(); j++){
@@ -842,6 +1014,8 @@ public class Interpretter_project {
             return "empty";
         else if(line.substring(0,1).equals("#"))
             return "comment";
+        else if(line.substring(0,3).equals("\"\"\""))
+            return "multi-line";
         else if(line.substring(0,5).equals("print"))
             return "print";
         else if(line.substring(0,2).equals("if"))
@@ -878,6 +1052,16 @@ public class Interpretter_project {
                 i++;
                 String part = "";
                 while(meat.charAt(i)!='"') {
+                    part += meat.charAt(i);
+                    i++;
+                }
+                System.out.print(part);
+            }
+            if(meat.charAt(i)=='\'') {
+                buildString = "";
+                i++;
+                String part = "";
+                while(meat.charAt(i)!='\'') {
                     part += meat.charAt(i);
                     i++;
                 }
@@ -1345,5 +1529,37 @@ public class Interpretter_project {
         return tabs/4;
     }
     
+    static boolean opGreater(Operation op1, Operation op2){
+        Character char1 = op1.operator;
+        Character char2 = op2.operator;
+        
+
+        
+        if(op1.pVal > op2.pVal){
+            return true;
+        }
+        else if(op1.pVal < op2.pVal){
+            return false;
+        }
+        
+        
+        else if(char1.equals('^')){
+            if(char2.equals('^'))
+                return false;
+            else
+                return true;
+        }
+        else if(char1.equals('*') || char1.equals('/')){
+            if(char2.equals('*') || char2.equals('/') || char2.equals('^'))
+                return false;
+            else{
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+
 }
 
