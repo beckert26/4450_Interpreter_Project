@@ -36,14 +36,15 @@ else:
     print("Something went wrong!!!")
 
 #Find primes in a given interval
-begin = 5
+test = 5
+begin = int(test)
 end = 25
 prime_counter = 0
 for num in range(begin, end):
     if(num > 0):
         if(num == 2):
             print("Prime: "+str(num))
-        for i in range(2, int(num/2)+2):
+        for i in range(int("2")+2*(int(1)-1+1)-2, int(num/2)):
             if (num%i==0):
                 break
             else:

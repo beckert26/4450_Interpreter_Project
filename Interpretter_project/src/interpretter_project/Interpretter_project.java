@@ -1609,7 +1609,8 @@ public class Interpretter_project {
             ops = new ArrayList<Operation>();
             ArrayList<Operation> ops2 = new ArrayList<Operation>();
             Integer pVal = 0;
-            //System.out.println(value);
+           
+            
             for(int k=0; k<value.length(); k++){
                 char cVal=value.charAt(k);
                 char cPrev = 'x';
@@ -1617,6 +1618,7 @@ public class Interpretter_project {
                     cPrev = value.charAt(k-1);
                 if(cVal=='+' || cVal=='*' || cVal=='/' || cVal=='%' || cVal=='^' || (cVal=='-' && !(k==0 || (cPrev=='+' || cPrev =='-' || cPrev =='*' || cPrev =='/' || cPrev == '^' || cPrev =='(')))){
                     Operation newOp = new Operation();
+                    
                     newOp.operator = cVal;
                     newOp.pos = k;
                     newOp.pVal = pVal;
@@ -1649,6 +1651,7 @@ public class Interpretter_project {
                 Character op = ops.get(i).operator;
                 String left="";
                 String right="";
+         
                 for(int k=ind+1;k<value.length();k++){
                     char cVal = value.charAt(k);
                     if(((cVal=='+' || cVal=='-' || cVal=='*' || cVal=='/' || cVal=='%' || cVal=='^')&& !(cVal=='-' && right=="")) ){
@@ -1662,33 +1665,42 @@ public class Interpretter_project {
                     }
                 }
                 int p = 0;
+              
                 for(int k=ind-1;k>=0;k--){
                     char cVal = value.charAt(k);
                     //System.out.println("hello" + cVal);
-                    if(cVal=='-' && p==0){
+                    char cPrev = 'x';
+                    if (k>0){
+                        cPrev = value.charAt(k-1);
+                    }
+                    //System.out.println("helloc2 " + cPrev);
+                    if(cVal=='-' && left.charAt(0)!='-' && p==0 && (cPrev == '*' || cPrev == '/' || cPrev == '+' || cPrev == '-' || cPrev == '^' || cPrev =='(')){
                         left= Character.toString(cVal) + left;
+                        
                         p++;
                     }
                     else if(cVal=='(' || cVal==')'){
                         continue;
                     }
-                    else if(((cVal=='+' || cVal=='-' || cVal=='*' || cVal=='/' || cVal=='%' || cVal=='^')&& !(cVal=='-' && p==0)) ){
+                    else if(((cVal=='+' || cVal=='-' || cVal=='*' || cVal=='/' || cVal=='%' || cVal=='^')) ){
                         break;
                     }
                     else{
                         left= Character.toString(cVal) + left;
-                        //System.out.println("hello2 " + cVal);
-                        //System.out.println("helloi2 " + i);
+                        
+
                     }
                 }
+
                 ops.get(i).left = left;
                 ops.get(i).right = right;
 
             }
+
             //System.out.println(value);
             String result = "";
             for(int i=0; i<ops.size(); i++){
-                //System.out.println("testing" + i);
+               
                 
                 Operation op = ops.get(i);
                 //System.out.println("hello there2 " + op.right);
@@ -1704,7 +1716,7 @@ public class Interpretter_project {
                 double rightVal = 0;
                 boolean leftExists=false;
                 boolean rightExists=false;
-         
+        
                 for(int j=0; j<variables.size(); j++){
                     Variable vExist=variables.get(j);
                     if(op.left.equals(vExist.getName())){
@@ -1716,6 +1728,7 @@ public class Interpretter_project {
                         rightVal=vExist.getDoubleValue();
                     }
                 }
+
                 if(!leftExists)
                     leftVal = Double.parseDouble(op.left);
                 if(!rightExists)
@@ -1728,6 +1741,7 @@ public class Interpretter_project {
                 Integer smallestR = 99999;
                 int smallestLInd = 0;
                 int smallestRInd = 0;
+         
                 for(int j=0;j<ops.size();j++){
                     if(ops.get(j).exist){
                         Integer diff = ops.get(i).pos - ops.get(j).pos;
@@ -1742,6 +1756,7 @@ public class Interpretter_project {
                         }
                     }
                 }
+           
                 op.exist = false;
                 //System.out.print("result: " + result + "\n");
                 ops.get(smallestLInd).right = result;
