@@ -1603,6 +1603,7 @@ public class Interpretter_project {
     
     static String handleArithmetic(String value, ArrayList<Variable> variables) throws Exception{
         try{
+            //System.out.println("hello there" + value);
             ArrayList<Operation> ops;
             ArrayList<Integer> opsInd = new ArrayList<Integer>();
             ops = new ArrayList<Operation>();
@@ -1614,7 +1615,7 @@ public class Interpretter_project {
                 char cPrev = 'x';
                 if(k>0)
                     cPrev = value.charAt(k-1);
-                if(cVal=='+' || cVal=='*' || cVal=='/' || cVal=='%' || cVal=='^' || (cVal=='-' && !(k==0 || (cPrev=='+' || cPrev =='-' || cPrev =='*' || cPrev =='/' || cPrev == '^')))){
+                if(cVal=='+' || cVal=='*' || cVal=='/' || cVal=='%' || cVal=='^' || (cVal=='-' && !(k==0 || (cPrev=='+' || cPrev =='-' || cPrev =='*' || cPrev =='/' || cPrev == '^' || cPrev =='(')))){
                     Operation newOp = new Operation();
                     newOp.operator = cVal;
                     newOp.pos = k;
@@ -1643,6 +1644,7 @@ public class Interpretter_project {
 
             //System.out.println(value);
             for(int i=0; i<ops.size(); i++){
+                //System.out.println("ops " + ops.get(i).operator);
                 Integer ind = ops.get(i).pos;
                 Character op = ops.get(i).operator;
                 String left="";
@@ -1662,6 +1664,7 @@ public class Interpretter_project {
                 int p = 0;
                 for(int k=ind-1;k>=0;k--){
                     char cVal = value.charAt(k);
+                    //System.out.println("hello" + cVal);
                     if(cVal=='-' && p==0){
                         left= Character.toString(cVal) + left;
                         p++;
@@ -1674,6 +1677,8 @@ public class Interpretter_project {
                     }
                     else{
                         left= Character.toString(cVal) + left;
+                        //System.out.println("hello2 " + cVal);
+                        //System.out.println("helloi2 " + i);
                     }
                 }
                 ops.get(i).left = left;
@@ -1683,7 +1688,11 @@ public class Interpretter_project {
             //System.out.println(value);
             String result = "";
             for(int i=0; i<ops.size(); i++){
+                //System.out.println("testing" + i);
+                
                 Operation op = ops.get(i);
+                //System.out.println("hello there2 " + op.right);
+                //System.out.println("hello there2 " + op.left);
                 /*
                 System.out.print("left: " + op.left + "\n");
                 System.out.print("right: " + op.right + "\n");
@@ -1711,7 +1720,10 @@ public class Interpretter_project {
                     leftVal = Double.parseDouble(op.left);
                 if(!rightExists)
                     rightVal = Double.parseDouble(op.right);
+                //System.out.println("hello there2 " + op.right);
+                //System.out.println("hello there2 " + op.left);
                 result = Double.toString(arithmeticOperation(leftVal,rightVal,Character.toString(op.operator)));
+                //System.out.println("hello there2 " + result);
                 Integer smallestL = 99999;
                 Integer smallestR = 99999;
                 int smallestLInd = 0;
