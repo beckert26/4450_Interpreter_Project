@@ -28,6 +28,8 @@ class Operation {
     public String left = "";
     public String right = "";
     public boolean exist = true;
+    public boolean isString = false;
+    public String content = "";
 }
 
 
@@ -59,12 +61,30 @@ public class Interpretter_project {
             lineIfCheck[c] = false;
         }
         int indent = 0;
+        //String test ="This is some test \"test to see what happens\"" + " hello there";
+
         try{
             handleLines(fileLines, variables, lineIfCheck, indent);
         }
         catch(Exception e ){
             System.out.print("Exception: " + e + "\n");
         }
+        String test ="This is some test \"test to see what happens\"" + " hello there";
+     
+        String test2= "\"This is Some Test\" + \" of adding strings\"";
+     
+        //try{
+        /*
+            String test3= "int(\"remove \") + int(int(\"nleek\" + \"2\"))";
+            System.out.println(removeInt(test3,variables));
+            String test4= "\"remove \" + str(str(\"nleek\") + str(test))";
+            System.out.println(removeStr(test4,variables));
+        */
+        //}
+        //catch(Exception e){
+            
+        //}
+
     }
     
     
@@ -84,19 +104,16 @@ public class Interpretter_project {
         for(int i=0; i<fileLines.size() && cont == true; i++){
             line=fileLines.get(i);
             try{
-                
+
                 if(!type.equals("in-comment"))
                     type=typeOfLine(line);
                 if(i<fileLines.size()-1) {
                     nextLine=fileLines.get(i+1);
                 }
-    //            System.out.println(i+1 + " : " + indent);
-    //            System.out.println(i+1 + " : " + getIndent(line));
-    //            System.out.println((i+1)+": "+indent);
+
                 if (indent == getIndent(line)) {
 
-    //                System.out.println(line);
-        //            System.out.println(type);
+
 
                     if(type.equals("comment")){
                         continue;
@@ -130,9 +147,7 @@ public class Interpretter_project {
                         ArrayList<Boolean> checks =  new ArrayList<Boolean>();
                         //Set to 3 for it, set to 5
                         if(getComparison(line,variables,checks,3)==true) {
-                            //System.out.println(getComparison(line,variables,checks,3));
-                            //System.out.println("Go in");
-                            //System.out.println("hitting");
+
                             lineIfCheck[indent] = true;
                             //bump indent and go into if statement
                             indent++;
@@ -147,26 +162,26 @@ public class Interpretter_project {
                         //Set to 3 for it, set to 5
 
                         if(getComparison(line,variables,checks,5)==true && lineIfCheck[indent] == false) {
-                            //System.out.println("Go In");
+        
                             lineIfCheck[indent] = true;
                             //bump indent and go into else
                             indent++;
                         }
                         else {
-                            //System.out.println("Skip");
+           
                         }
                     }
                     else if(type.equals("else")) {
                         ArrayList<Boolean> checks =  new ArrayList<Boolean>();
                         //Set to 3 for it, set to 5
                         if(lineIfCheck[indent] == false) {
-                            //System.out.println("Go in");
+             
                             lineIfCheck[indent] = false;
                             //bump indent and go into else
                             indent++;
                         }
                         else {
-                            //System.out.println("Skip");
+                 
                         }
                     }
                     else if(type.equals("while")) {
@@ -220,13 +235,12 @@ public class Interpretter_project {
                             int forIndent=indent;
                             int checkIndent=getIndent(nextLine);
                             while(true){
-    //                            System.out.println("whileindent: "+ whileIndent);
-    //                            System.out.println("checkIndent: "+ checkIndent);
+    //     
                                 if(forIndent<checkIndent && j<fileLines.size()){
-    //                                System.out.println("nextline " + getIndent(nextLine));
+    //            
                                     forLine=fileLines.get(j);
                                     forFileLines.add(forLine);
-    //                                System.out.println(whileLine);
+    //               
                                     j++;
                                     if(j<fileLines.size()) {
                                         nextLine=fileLines.get(j);
@@ -284,9 +298,9 @@ public class Interpretter_project {
         }
         for(int i=0; i<variables.size(); i++){
            Variable v=variables.get(i);
-//           System.out.println(v.getName()+": "+v.getDoubleValue());
+//         
        }
-//       System.out.println();
+//      
         return variables;
    }
     
@@ -342,7 +356,7 @@ public class Interpretter_project {
                     i=i+5;
                 }
             }
-            //System.out.print(beginString + "\n");
+           
             //handle whether begin string is number or variable
             //check if begin is in variable arrray if it is not must be a number
             boolean beginInVariables=false;
@@ -357,7 +371,12 @@ public class Interpretter_project {
                     break;
                 }
             }
-
+            //System.out.println("hello there beg " + beginString);
+            beginString = removeInt(beginString,variables);
+            //System.out.println("hello there beg " + beginString);
+            beginString = handleArithmetic(beginString,variables);
+            //System.out.println("hello there beg " + beginString);
+            /*
                 boolean intFunction=false;
                 int intindex=0;
                 for(int k=0; k<beginString.length(); k++){
@@ -482,7 +501,9 @@ public class Interpretter_project {
                     }
 
                 }
+            */
             //if it's not get beginning value in range and set it to new variable in array with varName
+
             if(inVariables==false){
 
                 if(beginInVariables==false){
@@ -492,8 +513,9 @@ public class Interpretter_project {
                     variables.add(vNew);
                 }
 
-
+               
             }
+            
             else{
                 for(int i=0; i<variables.size(); i++){
                     Variable v=variables.get(i);
@@ -535,11 +557,14 @@ public class Interpretter_project {
             String endString="";
             char c=' ';
             boolean afterComma=false;
+            boolean wasPara = false;
             for(int i=0; i<line.length(); i++) {
                 c=line.charAt(i);
                 if(afterComma){
                     if(c!=')' || line.charAt(i+1)!=':'){
                        endString+=Character.toString(c);
+                       if(c==')')
+                           wasPara=true;
                     }
                     else{
                         break;
@@ -553,6 +578,8 @@ public class Interpretter_project {
 
             //get end value
             double endValue=0;
+            
+            
 
             boolean endInVariables=false;
                 for(int i=0; i<variables.size(); i++){
@@ -566,54 +593,48 @@ public class Interpretter_project {
                 }
 
                 if(endInVariables==false){
+                    //System.out.println("wwwww1 " + endString);
+                    endString = removeInt(endString,variables);
+                    //System.out.println("wwwww1 " + endString);
+                    endString = handleArithmetic(endString,variables);
+                    
+                    //System.out.println("wwwww2 " + endString);
+                    /*
                     //check for int function and arithmetic and perform those operations
                      boolean intFunction=false;
-                     int intindex=0;
                      for(int k=0; k<endString.length(); k++){
                         char cVal=endString.charAt(k);
-                        String opVal="";
-                        String left="";
-                        String right="";
-                        String restValue="";
-                        double leftVal=0;
-                        double rightVal=0;
+
 
                         if(cVal=='i' && endString.charAt(k+1)=='n' && endString.charAt(k+2)=='t' && endString.charAt(k+3)=='('){
-                            intindex=k;
+      
                             k=k+3;
                             intFunction=true;
 
                         }
-                        if(cVal=='+' || cVal=='*' || cVal=='/' || cVal=='%' || cVal=='^' || (cVal=='-' || cVal==')' && k!=0) ){
-                            opVal=Character.toString(cVal);
-                            int p=0;
+                        
+                        if(cVal=='+' || cVal=='*' || cVal=='/' || cVal=='%' || cVal=='^' || ((cVal=='-' || cVal==')') && k!=0 && (intFunction == false || k!=4) )){
                             for(int m=0; m<endString.length(); m++){
 
                                 char cVal2=endString.charAt(m);
+                           
+                                
+                                
                                 if(cVal2=='i' && endString.charAt(m+1)=='n' && endString.charAt(m+2)=='t' && endString.charAt(m+3)=='('){
-                                    intindex=m;
+                              
                                     m=m+3;
                                     intFunction=true;
 
                                     continue;
                                 }
+                                
+                
 
-                                if((p==0 && cVal2!=' ' && cVal2!='+' && cVal2!='-' && cVal2!='*' && cVal2!='/' && cVal2!='%' && cVal2!='^' && cVal2!=')') || (cVal2=='-' && right.equals("") && p==0)){
-                                    left+=Character.toString(cVal2);
-                                }
-                                else if((p==1 && cVal2!='-' && cVal2!=' ' && cVal2!='+' && cVal2!='*' && cVal2!='/' && cVal2!='%' && cVal2!='^' && cVal2!=')') || (cVal2=='-' && right.equals("") && p==1)){
-                                    right+=Character.toString(cVal2);
-                                }
-                                else if(cVal2=='+' || cVal2=='-' || cVal2=='*' || cVal2=='/' || cVal2=='%' || cVal2=='^' || cVal2==')'){
-                                    p++;
-                                }
-                                if(p>=2){
-                                    restValue+=Character.toString(cVal2);
-                                }
-                            }
-    //                        System.out.println(left);
-    //                        System.out.println(right);
+                            }*/
+    //           
                             //perform int function when parenthesis is closed
+                
+                            /*
                             if(cVal==')' && intFunction==true){
                                 char intC=' ';
                                 String intStringVal="";
@@ -621,10 +642,13 @@ public class Interpretter_project {
                                 while(intC!='('){
                                     intC=endString.charAt(j);
                                     //to fix reverse order
-                                    if(intC!='(')
+                                    if(intC!='('){
+                                
                                         intStringVal=Character.toString(intC)+intStringVal;
+                                    }
                                     j--;
                                 }
+                               
                                 boolean intInVariables=false;
                                 double intVal = 0;
                                 for(int i=0; i<variables.size(); i++){
@@ -642,12 +666,14 @@ public class Interpretter_project {
                                 }
                                 
                                 intStringVal=Double.toString(intVal);
-                                endString=intStringVal+restValue;
+                                //endString=intStringVal+restValue;
                                 intFunction=false;
     //                            restValue=restValue.substring(1);
                             }
-                            else{
+                            */
+                            //{
                                 //check if leftVal is in variables array if it is get value else just parse
+                                /*
                                 boolean leftInVariable=false;
                                 for(int i=0; i<variables.size(); i++){
                                     Variable vLeft=variables.get(i);
@@ -675,21 +701,32 @@ public class Interpretter_project {
                                 if(rightInVariable==false){
                                     rightVal=Double.parseDouble(right);
                                 }
-
+                                */
+                                /*
+                          
                                 if(intFunction==true){
-                                        endString="int("+Double.toString(arithmeticOperation(leftVal, rightVal, opVal))+restValue;
+                                        String endInner = endString.substring(4,endString.length()-1);
+                                        //System.out.println("test4: " + end);
+                                        //System.out.println("test: " + endString);
+                                        //System.out.println("test: " + left+opVal+right+restValue.substring(0,restValue.length()-1));
+                                        endString=handleArithmetic(endInner, variables);
+                                        //System.out.println("test3: " + endString);
                                 }
                                 else{
-                                    endString=Double.toString(arithmeticOperation(leftVal, rightVal, opVal))+restValue;
+                                    //System.out.println("test3: " + endString);
+                                    endString = handleArithmetic(endString, variables);
+                                    //System.out.println("test3: " + endString);
                                 }
-                            }
+                                */
+                            //}
 
-                            k=0;
-                        }
+                            //k=0; 
+                        //}
 
-                    }
-
-                     endValue=Double.parseDouble(endString);
+                    //}
+                    //System.out.println("bloopp2 " + varValue);
+                    //System.out.println("bloopp " + endString);
+                    endValue=Double.parseDouble(endString);
 
                 }
             if(varValue<endValue){
@@ -706,8 +743,11 @@ public class Interpretter_project {
     
     static ArrayList<Variable> handleVariable(String line, ArrayList<Variable> va ) throws Exception{
         try{
+            
             ArrayList<Variable> variables=va;
             line=line.trim();
+            line = removeInt(line,variables);
+            //System.out.println("testing " + line);
             String name="";
             int part=0;
             char c=' ';
@@ -784,11 +824,573 @@ public class Interpretter_project {
 
             //second value
             //check whether right hand side has arthimetic and handle the arthimetic
+            String result = handleArithmetic(value,variables);
+            //if(!result.equals(""))
+            value = result;
+            value = trimWhite(value);
+  
+
+
+                    /*
+                    int p=0;
+                    for(int m=0; m<value.length(); m++){
+
+                        char cVal2=value.charAt(m);
+
+                        if((p==0 && cVal2!=' ' && cVal2!='+' && cVal2!='-' && cVal2!='*' && cVal2!='/' && cVal2!='%' && cVal2!='^') || (cVal2=='-' && right.equals("") && p==0)){
+                            left+=Character.toString(cVal2);
+                        }
+                        else if((p==1 && cVal2!='-' && cVal2!=' ' && cVal2!='+' && cVal2!='*' && cVal2!='/' && cVal2!='%' && cVal2!='^') || (cVal2=='-' && right.equals("") && p==1)){
+                            right+=Character.toString(cVal2);
+                        }
+                        else if(cVal2=='+' || cVal2=='-' || cVal2=='*' || cVal2=='/' || cVal2=='%' || cVal2=='^' ){
+                            p++;
+                        }
+                        if(p>=2){
+                            restValue+=Character.toString(cVal2);
+                        }
+                    }
+
+
+                    leftVal=Double.parseDouble(left);
+                    rightVal=Double.parseDouble(right);
+                    value=Double.toString(arithmeticOperation(leftVal, rightVal, opVal))+restValue;
+                    k=0;
+                }    
+                */
+            /*
+            for(int k=0; k<value.length(); k++){
+                char cVal=value.charAt(k);
+                String opVal="";
+                String left="";
+                String right="";
+                String restValue="";
+                double leftVal=0;
+                double rightVal=0;
+                if(cVal=='+' || cVal=='*' || cVal=='/' || cVal=='%' || cVal=='^' || (cVal=='-' && k!=0) ){
+                    opVal=Character.toString(cVal);
+
+                    int p=0;
+                    for(int m=0; m<value.length(); m++){
+
+                        char cVal2=value.charAt(m);
+
+                        if((p==0 && cVal2!=' ' && cVal2!='+' && cVal2!='-' && cVal2!='*' && cVal2!='/' && cVal2!='%' && cVal2!='^') || (cVal2=='-' && right.equals("") && p==0)){
+                            left+=Character.toString(cVal2);
+                        }
+                        else if((p==1 && cVal2!='-' && cVal2!=' ' && cVal2!='+' && cVal2!='*' && cVal2!='/' && cVal2!='%' && cVal2!='^') || (cVal2=='-' && right.equals("") && p==1)){
+                            right+=Character.toString(cVal2);
+                        }
+                        else if(cVal2=='+' || cVal2=='-' || cVal2=='*' || cVal2=='/' || cVal2=='%' || cVal2=='^' ){
+                            p++;
+                        }
+                        if(p>=2){
+                            restValue+=Character.toString(cVal2);
+                        }
+                    }
+
+                    leftVal=Double.parseDouble(left);
+                    rightVal=Double.parseDouble(right);
+                    value= Double.toString(arithmeticOperation(leftVal, rightVal, opVal))+restValue;
+                    k=0;
+                }
+            }
+
+            */
+            //check for assignment
+            int assignmentIndex=0;
+            for(int j=0; j<variables.size(); j++){
+                Variable vSecond=variables.get(j);
+                if(value.equals(vSecond.getName())){
+                    if(vSecond.getVariableType().equals("string")){
+                        value = vSecond.getStringValue();
+                    }
+                    else{
+                        value = String.valueOf(vSecond.getDoubleValue());
+                    }
+                    assignmentIndex=j;
+                }
+            }
+            if(exists==false){
+            //figure out if value is an equation and do that first
+                if(isString==true){
+                    v=new Variable(name, value);
+                    variables.add(v);
+                }
+                else{
+                    v=new Variable(name, Double.parseDouble(value));
+                    variables.add(v);
+                }
+            }
+            //handle operations with existing variable
+            else{
+                if(operator.equals("=")){
+                    if(variables.get(varIndex).getVariableType()=="double"){
+
+                        variables.get(varIndex).setDoubleValue(Double.parseDouble(value));
+                    }
+                    else
+                        variables.get(varIndex).setStringValue(value);
+                }
+                //perform according operation
+                else if(operator.equals("+=")){
+                    variables.get(varIndex).setDoubleValue(variables.get(varIndex).getDoubleValue()+variables.get(assignmentIndex).getDoubleValue());
+                }
+                else if(operator.equals("-=")){
+                    variables.get(varIndex).setDoubleValue(variables.get(varIndex).getDoubleValue()-variables.get(assignmentIndex).getDoubleValue());
+                }
+                else if(operator.equals("*=")){
+                    variables.get(varIndex).setDoubleValue(variables.get(varIndex).getDoubleValue()*variables.get(assignmentIndex).getDoubleValue());
+                }
+                else if(operator.equals("/=")){
+                    variables.get(varIndex).setDoubleValue(variables.get(varIndex).getDoubleValue()/variables.get(assignmentIndex).getDoubleValue());
+                }
+                else if(operator.equals("^=")){
+                    variables.get(varIndex).setDoubleValue((int)variables.get(varIndex).getDoubleValue()^(int)variables.get(assignmentIndex).getDoubleValue());
+                }
+                else if(operator.equals("%=")){
+                    variables.get(varIndex).setDoubleValue(variables.get(varIndex).getDoubleValue()%variables.get(assignmentIndex).getDoubleValue());
+                }
+
+            }
+            
+            return variables;
+        }
+        catch(Exception e){
+            throw new Exception ("Variable exception \nParserException: " + e + "\n");
+        }
+    }
+    
+    static String removeInt(String value, ArrayList<Variable> variables){
+       // try{
+            //System.out.println("test" + value);
+            String newVal = value;
+            for (int k=0; k<value.length()-4; k++){
+                char cVal = value.charAt(k);
+                
+                if(cVal=='"'){
+                    for(int a=k;a<value.length();a++){
+                        if(value.charAt(a)==('"')){
+                          
+                            k=a+1;
+                            break;
+                        }
+                        k=a;
+                    }
+                }
+                
+                if(cVal=='i' && value.charAt(k+1)=='n' && value.charAt(k+2)=='t' && value.charAt(k+3)=='('){
+                    
+                    int paracount = 1;
+                    int start = k+4;
+                    int end = 0;
+                    for(int i=k+4;i<value.length();i++){
+                        cVal = value.charAt(i);
+                        //System.out.println("hello cval " + cVal);
+                        //System.out.println("hello para " + paracount);
+                        if(cVal=='('){
+                            paracount++;
+                        }
+                        if(cVal==')'){
+                            paracount--;
+                        }
+                        if(paracount==0){
+                           
+                     
+                            end = i;
+                            //newVal =  value.substring(0,start-4) + value.substring(i+1,value.length());
+                            String temp = value.substring(start,i);
+                            //System.out.println("this is temp " + temp);
+                            String temp2 = "";
+                            char cPrev = 'x';
+                            int paracount2 = 0;
+                            boolean inFunc = false;
+                            for(int j=0;j<temp.length();j++){
+                                if(cVal=='('){
+                                    paracount2++;
+                                }
+                               
+                                cVal=temp.charAt(j);
+                           
+                                //if(j>0){
+                                    boolean q = false;
+                                    if(cVal=='"'){
+                                        q = !q;
+                                        //temp2+= cVal;
+                                        for(int a=j+1;a<temp.length();a++){
+                                         
+                                            if(temp.charAt(a)=='"' && q){
+                                                //q=!q;
+                                                continue;
+                                            }
+                                            else if(temp.charAt(a)=='"' && !q){
+                                                q=!q;
+                                                temp2+=temp.charAt(a);
+                                            }
+                                            else{
+                                                temp2+= temp.charAt(a);
+                                            }
+                                            /*
+                                            if(temp.charAt(a)=='"'){
+                                                j=a+1;
+                                                break;
+                                            }
+                                            else{
+                                                j=a;
+                                            }
+                                            */
+                                            j=a+1;
+                                        }
+                                    }
+                                    if(j>=temp.length()){
+                                        break;
+                                    }
+                                //}
+
+                                cVal=temp.charAt(j);
+                                if(j+4<temp.length()){
+                                   
+                                    if((cVal=='i' && temp.charAt(j+1)=='n' && temp.charAt(j+2)=='t' && temp.charAt(j+3)=='(')||(cVal=='s' && temp.charAt(j+1)=='t' && temp.charAt(j+2)=='r' && temp.charAt(j+3)=='(')){
+                                     
+                                        paracount2++;
+                                        for(int p=j;p<temp.length();p++){
+                                            char cVal2 = temp.charAt(p);
+                                            //System.out.println("paracountc " + cVal2);
+                                            //System.out.println("paracount " + paracount2);
+                                            temp2 += temp.charAt(p);
+                                            //System.out.println("Hi there3 " + temp2);
+                                            if(cVal2=='('){
+                                                paracount2++;
+                                            }
+                                            else if(cVal2==')'){
+                                                paracount2--;
+                                                if(paracount2==0)
+                                                    temp2 = temp2.substring(0,temp2.length()-1);
+                                                //System.out.println("Hi there2 " + temp2);
+                                            }
+                                            if(paracount2==0){
+                                                j=p+1;
+                                             
+                                                break;
+                                            }
+                                            j=p;
+                                        }
+                                        j++;
+                                    }
+                                    //System.out.println("Hi there1 " + temp2);
+                                    if(j>=temp.length()){
+                                        break;
+                                    }
+                                    cVal=temp.charAt(j);
+                                }
+                                if(j>0){
+                                    cPrev = temp.charAt(j-1);
+                                }
+                              
+                                /*
+                                if(j+1<temp.length()){
+                                    
+                                    if(temp.charAt(j+1)=='"' && temp.charAt(j)=='\\'){
+                                        j++; 
+                                        j++;
+                                    }
+                                }
+                                */
+                            
+                              
+                                if(temp.charAt(j)!='"'){
+                             
+                                    temp2+= Character.toString(temp.charAt(j));
+                                }
+                                
+                            //System.out.println("Hi there " + temp2);
+                            }
+                            if(temp2.charAt(0)=='"'){
+                             
+                            }
+      
+                            //System.out.println("test" + temp2);
+                            /*
+                            else{
+                                Variable tempV = handleArtVar(newVal, variables);
+                                if(tempV.getVariableType().equals("string")){
+                                    newVal = tempV.getStringValue();
+                                }
+                                if(tempV.getVariableType().equals("char")){
+                                    newVal = Character.toString(tempV.getCharValue());
+                                }
+                                if(tempV.getVariableType().equals("int")){
+                                    newVal = String.valueOf(tempV.getIntValue());
+                                }
+                                if(tempV.getVariableType().equals("double")){
+                                    newVal = String.valueOf(tempV.getDoubleValue());
+                                }
+                                if(tempV.getVariableType().equals("boolean")){
+                                    newVal = Boolean.toString(tempV.getBooleanValue());
+                                }
+                         
+                            }
+                            */
+                            newVal = value.substring(0,start-4) + temp2 + value.substring(i+1,value.length());
+
+                            break;
+                        }
+                        k=i;
+                    }
+                }
+            }
+            //System.out.println("baadsf" +newVal);
+            if(newVal.equals(value)){
+                return value;
+            }
+            else{
+                return removeInt(newVal,variables);
+            }
+        //}
+        /*
+        catch(Exception e){
+            
+            throw new Exception("test");
+        }
+        */
+    }
+    
+
+    
+    static String makeString(String value, ArrayList<Variable> variables){
+        if(value.charAt(0)=='"'){
+            return value;
+        }
+        String newVal = value;
+        for(int i=0;i<variables.size();i++){
+            if(variables.get(i).getName().equals(value)){
+                Variable temp = variables.get(i);
+                if(temp.getVariableType().equals("string")){
+                    newVal = temp.getStringValue();
+                }
+                if(temp.getVariableType().equals("char")){
+                    newVal = Character.toString(temp.getCharValue());
+                }
+                if(temp.getVariableType().equals("int")){
+                    newVal = String.valueOf(temp.getIntValue());
+                }
+                if(temp.getVariableType().equals("double")){
+                    newVal = String.valueOf(temp.getDoubleValue());
+                }
+                if(temp.getVariableType().equals("boolean")){
+                    newVal = Boolean.toString(temp.getBooleanValue());
+                }
+                
+            }
+        }
+        newVal = "\"" + newVal + "\"";
+        return newVal;
+    }
+    
+    static String removeStr(String value, ArrayList<Variable> variables){
+        //try{
+            String newVal = value;
+            for (int k=0; k<value.length()-4; k++){
+                char cVal = value.charAt(k);
+                if(cVal=='s' && value.charAt(k+1)=='t' && value.charAt(k+2)=='r' && value.charAt(k+3)=='('){
+                    //System.out.println("test");
+                    int paracount = 1;
+                    int start = k+4;
+                    for(int i=k+4;i<value.length();i++){
+                        cVal = value.charAt(i);
+                        if(cVal=='('){
+                            paracount++;
+                        }
+                        if(cVal==')'){
+                            paracount--;
+                        }
+                        //System.out.println(paracount);
+                        if(paracount==0){
+                               
+                            //System.out.println("test");
+                            //end = i;
+                            //newVal =  value.substring(0,start-4) + value.substring(i+1,value.length());
+                            String temp = value.substring(start,i);
+                            //System.out.println(temp);
+                            String temp2 = "";
+                            char cPrev = 'x';
+                            int paracount2 = 0;
+                            //boolean inFunc = false;
+                            for(int j=0;j<temp.length();j++){
+                                if(j+4<temp.length()){
+                                    if((cVal=='i' && temp.charAt(j+1)=='n' && temp.charAt(j+2)=='t' && temp.charAt(j+3)=='(')||(cVal=='s' && temp.charAt(j+1)=='t' && temp.charAt(j+2)=='r' && temp.charAt(j+3)=='(')){
+                                        //System.out.println(temp);
+                                        paracount2=1;
+                                        for(int p=j+4;p<temp.length();p++){
+                                            char cVal2 = temp.charAt(p);
+                                            if(cVal2=='('){
+                                                paracount2++;
+                                            }
+                                            else if(cVal2==')'){
+                                                paracount2--;
+                                            }
+                                            if(paracount2==0){
+                                                j=p+1;
+                                                break;
+                                            }
+                                            j=p;
+                                        }
+                                    }
+                                    cVal=temp.charAt(j);
+                                }
+                                if(j>0){
+                                    cPrev = temp.charAt(j-1);
+                                }
+                                //System.out.println(temp.charAt(j));
+                                /*
+                                if(j+1<temp.length()){
+                                    
+                                    if(temp.charAt(j+1)=='"' && temp.charAt(j)=='\\'){
+                                        j++; 
+                                        j++;
+                                    }
+                                }
+                                */
+                                if(j<temp.length()){
+                                    //System.out.println(temp.charAt(j));
+                                    if(temp.charAt(j)!='"'){
+                                        //System.out.println(temp.charAt(j));
+                                        temp2+= Character.toString(temp.charAt(j));
+                                    }
+                                }
+        
+                            }
+                            if(temp2.charAt(0)=='"'){
+                                //System.out.println("error");
+                            }
+                            newVal =  value.substring(0,start-4) + value.substring(start,i) + value.substring(i+1,value.length());
+                            newVal = makeString(newVal,variables);
+                            //System.out.println(newVal);
+                            /*
+                            if(newVal.charAt(0)!= '"'){
+                                Variable temp = handleArtVar(newVal, variables);
+                                if(temp.getVariableType().equals("string")){
+                                    newVal = temp.getStringValue();
+                                }
+                                if(temp.getVariableType().equals("char")){
+                                    newVal = Character.toString(temp.getCharValue());
+                                }
+                                if(temp.getVariableType().equals("int")){
+                                    newVal = String.valueOf(temp.getIntValue());
+                                }
+                                if(temp.getVariableType().equals("double")){
+                                    newVal = String.valueOf(temp.getDoubleValue());
+                                }
+                                if(temp.getVariableType().equals("boolean")){
+                                    newVal = Boolean.toString(temp.getBooleanValue());
+                                }
+                                if(newVal.charAt(0)!='"')
+                                    newVal = "\"" + newVal + "\"";
+                            }
+                            */
+                            break;
+                        }
+                        k=i;
+                    }
+                }
+            }
+            //System.out.println(newVal);
+            if(newVal.equals(value)){
+                return value;
+            }
+            else{
+                return removeStr(newVal,variables);
+            }
+        /*
+        }
+        catch(Exception e){
+            throw new Exception("test");
+        }
+        */
+    }
+    
+    
+    /*
+    static Variable handleArtVar(String value, ArrayList<Variable> variables) throws Exception{
+        Variable returnVar = new Variable("test","test");
+        try{
+            value = removeStr(value,variables);
+            value = removeInt(value,variables);
             ArrayList<Operation> ops;
-            ArrayList<Integer> opsInd = new ArrayList<Integer>();
             ops = new ArrayList<Operation>();
             ArrayList<Operation> ops2 = new ArrayList<Operation>();
             Integer pVal = 0;
+            //determine type
+            String newVal;
+            boolean isString = false;
+            if(value.charAt(0)== '"'){
+                isString = true;
+            }
+            
+            for(int k=0; k<value.length();k++){
+                boolean inString=false;
+                String stringTemp = "";
+                char cVal = value.charAt(k);
+                if(cVal=='"'){
+                    inString = true;
+                    for(int j=k+1;j<value.length();j++){
+                        cVal = value.charAt(j);
+                        if(cVal!='"'){
+                            stringTemp += Character.toString(cVal);
+                            newVal+= Character.toString(cVal);
+                            k=j;
+                        }
+                        else {
+                            k++;
+                            break;
+                        }
+                    }
+                Operation tempOp = new Operation();
+                tempOp.content = stringTemp;
+                tempOp.isString= true;
+                ops.add(tempOp);
+                }
+                if(cVal=='i' && value.charAt(k+1)=='n' && value.charAt(k+2)=='t' && value.charAt(k+3)=='('){
+                    if(value.charAt(k+4)=='"'){
+                        for
+                        
+                    }
+                    int paracount = 1;
+                    for(int i=k+4;i<value.length();i++){
+                        cVal=value.charAt(i);
+                        if(cVal=='"'){
+                            inString = true;
+                            for(int j=k+1;j<value.length();j++){
+                                cVal = value.charAt(j);
+                                if(cVal!='"'){
+                                    stringTemp += Character.toString(cVal);
+                                    k=j;
+                                }
+                                else {
+                                    k++;
+                                    break;
+                                }
+                            }
+                        Operation tempOp = new Operation();
+                        tempOp.content = stringTemp;
+                        tempOp.isString= true;
+                        ops.add(tempOp);
+                        }
+                        k=i;
+                        if(cVal=='('){
+                            paracount++;
+                        }
+                        else if(cVal==')'){
+                            paracount--;
+                        }
+                        if(paracount==0){
+                            break;
+                        }
+                        
+                    }
+                }
+            }
+
             for(int k=0; k<value.length(); k++){
                 char cVal=value.charAt(k);
                 char cPrev = 'x';
@@ -863,6 +1465,225 @@ public class Interpretter_project {
             String result = "";
             for(int i=0; i<ops.size(); i++){
                 Operation op = ops.get(i);
+  
+                
+                double leftVal = 0;
+                double rightVal = 0;
+                boolean leftExists=false;
+                boolean rightExists=false;
+         
+                for(int j=0; j<variables.size(); j++){
+                    Variable vExist=variables.get(j);
+                    if(op.left.equals(vExist.getName())){
+                        leftExists=true;
+                        leftVal=vExist.getDoubleValue();
+                    }
+                    if(op.right.equals(vExist.getName())){
+                        rightExists=true;
+                        rightVal=vExist.getDoubleValue();
+                    }
+                }
+                if(!leftExists)
+                    leftVal = Double.parseDouble(op.left);
+                if(!rightExists)
+                    rightVal = Double.parseDouble(op.right);
+                result = Double.toString(arithmeticOperation(leftVal,rightVal,Character.toString(op.operator)));
+                Integer smallestL = 99999;
+                Integer smallestR = 99999;
+                int smallestLInd = 0;
+                int smallestRInd = 0;
+                for(int j=0;j<ops.size();j++){
+                    if(ops.get(j).exist){
+                        Integer diff = ops.get(i).pos - ops.get(j).pos;
+                        Integer diff2 = -diff;
+                        if(diff > 0 && diff < smallestL){
+                            smallestL = diff;
+                            smallestLInd = j;
+                        }
+                        if(diff2 > 0 && diff2 < smallestR){
+                            smallestR = diff2;
+                            smallestRInd = j;
+                        }
+                    }
+                }
+                op.exist = false;
+                //System.out.print("result: " + result + "\n");
+                ops.get(smallestLInd).right = result;
+                ops.get(smallestRInd).left = result;
+            }
+
+            value = result;
+            return result;
+        }
+        catch(Exception e){
+            throw new Exception ("Arithmatic exception \nParserException: " + e + "\n");
+        }
+        
+        return returnVar;
+    }
+ */
+    
+    static String trimWhite(String value){
+        String newVal = "";
+        //System.out.println(value);
+        for(int i=0;i<value.length();i++){
+            char cVal = value.charAt(i);
+            char cPrev = 'x';
+            if(cVal == '"'){
+                
+                newVal+= cVal;
+                for(int k=i+1;k<value.length();k++){
+                    cPrev = value.charAt(k-1);
+                    cVal = value.charAt(k);
+                    newVal+= cVal;
+                    if(cVal == '"' && cPrev != '\\'){
+                        break;
+                    }
+                    i=k;
+                }
+                i++;
+                continue;
+            }
+            else if(cVal !=' '){
+                newVal += cVal;
+            }
+        }
+        
+        return newVal;
+    }
+    
+    
+    static String handleStrings(String value){
+        value = trimWhite(value);
+        String newString="";
+        //boolean inString;
+        char previous = '+';
+        int paraCount = 0;
+        for(int i=0;i<value.length();i++){
+            char cPrev = 'x';
+            if(i>0){
+                cPrev = value.charAt(i-1);
+            }
+            if(paraCount<0 || previous != '+'){
+                newString = value;
+                break;
+            }
+            if(value.charAt(i)=='"' && cPrev != '\\' && previous=='+' && paraCount >=0){
+                for(int k=i+1; k<value.length();k++){
+                    if(value.charAt(k)=='"' && value.charAt(k-1)!='\\'){
+                        i=k;
+                        break;
+                    }
+                    else{
+                        newString+= value.charAt(k);
+                    }
+                    i=k;
+                }
+            }
+            else if(value.charAt(i)=='+'){
+                previous = value.charAt(i);
+                //continue;
+            }
+            else if(value.charAt(i) == '('){
+                paraCount++;
+            }
+            else if(value.charAt(i) == '}'){
+                paraCount--;
+            }
+            else{
+                previous = value.charAt(i);
+            }
+            
+        }
+        
+        return newString;
+    }
+    
+    
+    
+    static String handleArithmetic(String value, ArrayList<Variable> variables) throws Exception{
+        try{
+            ArrayList<Operation> ops;
+            ArrayList<Integer> opsInd = new ArrayList<Integer>();
+            ops = new ArrayList<Operation>();
+            ArrayList<Operation> ops2 = new ArrayList<Operation>();
+            Integer pVal = 0;
+            //System.out.println(value);
+            for(int k=0; k<value.length(); k++){
+                char cVal=value.charAt(k);
+                char cPrev = 'x';
+                if(k>0)
+                    cPrev = value.charAt(k-1);
+                if(cVal=='+' || cVal=='*' || cVal=='/' || cVal=='%' || cVal=='^' || (cVal=='-' && !(k==0 || (cPrev=='+' || cPrev =='-' || cPrev =='*' || cPrev =='/' || cPrev == '^')))){
+                    Operation newOp = new Operation();
+                    newOp.operator = cVal;
+                    newOp.pos = k;
+                    newOp.pVal = pVal;
+                    ops.add(newOp);
+                    ops2.add(newOp);
+                }
+                else if (cVal =='('){
+                    pVal++;
+                }
+                else if (cVal == ')' && pVal > 0){
+                    pVal--;
+                }
+            }
+            //System.out.println(value);
+            Collections.reverse(ops);
+            Collections.reverse(opsInd);
+            for(int i=0; i<ops.size()-1; i++){
+                for(int j=0;j<ops.size()-i-1;j++)
+                    if(opGreater(ops.get(j+1),ops.get(j))){
+                        Collections.swap(ops,j,j+1);
+                    }
+
+            }
+
+
+            //System.out.println(value);
+            for(int i=0; i<ops.size(); i++){
+                Integer ind = ops.get(i).pos;
+                Character op = ops.get(i).operator;
+                String left="";
+                String right="";
+                for(int k=ind+1;k<value.length();k++){
+                    char cVal = value.charAt(k);
+                    if(((cVal=='+' || cVal=='-' || cVal=='*' || cVal=='/' || cVal=='%' || cVal=='^')&& !(cVal=='-' && right=="")) ){
+                        break;
+                    }
+                    else if(cVal=='(' || cVal==')'){
+                        continue;
+                    }
+                    else{
+                        right+= Character.toString(cVal);
+                    }
+                }
+                int p = 0;
+                for(int k=ind-1;k>=0;k--){
+                    char cVal = value.charAt(k);
+                    if(cVal=='-' && p==0){
+                        left= Character.toString(cVal) + left;
+                        p++;
+                    }
+                    else if(cVal=='(' || cVal==')'){
+                        continue;
+                    }
+                    else if(((cVal=='+' || cVal=='-' || cVal=='*' || cVal=='/' || cVal=='%' || cVal=='^')&& !(cVal=='-' && p==0)) ){
+                        break;
+                    }
+                    else{
+                        left= Character.toString(cVal) + left;
+                    }
+                }
+                ops.get(i).left = left;
+                ops.get(i).right = right;
+
+            }
+            //System.out.println(value);
+            String result = "";
+            for(int i=0; i<ops.size(); i++){
+                Operation op = ops.get(i);
                 /*
                 System.out.print("left: " + op.left + "\n");
                 System.out.print("right: " + op.right + "\n");
@@ -914,132 +1735,15 @@ public class Interpretter_project {
                 ops.get(smallestLInd).right = result;
                 ops.get(smallestRInd).left = result;
             }
-            if(!result.equals("")){
+            //System.out.println("test" + result);
+            //System.out.println(value);
+            if(!result.equals(""))
                 value = result;
-            }
-            //System.out.print(value);
-
-
-                    /*
-                    int p=0;
-                    for(int m=0; m<value.length(); m++){
-
-                        char cVal2=value.charAt(m);
-
-                        if((p==0 && cVal2!=' ' && cVal2!='+' && cVal2!='-' && cVal2!='*' && cVal2!='/' && cVal2!='%' && cVal2!='^') || (cVal2=='-' && right.equals("") && p==0)){
-                            left+=Character.toString(cVal2);
-                        }
-                        else if((p==1 && cVal2!='-' && cVal2!=' ' && cVal2!='+' && cVal2!='*' && cVal2!='/' && cVal2!='%' && cVal2!='^') || (cVal2=='-' && right.equals("") && p==1)){
-                            right+=Character.toString(cVal2);
-                        }
-                        else if(cVal2=='+' || cVal2=='-' || cVal2=='*' || cVal2=='/' || cVal2=='%' || cVal2=='^' ){
-                            p++;
-                        }
-                        if(p>=2){
-                            restValue+=Character.toString(cVal2);
-                        }
-                    }
-
-
-                    leftVal=Double.parseDouble(left);
-                    rightVal=Double.parseDouble(right);
-                    value=Double.toString(arithmeticOperation(leftVal, rightVal, opVal))+restValue;
-                    k=0;
-                }    
-                */
-            /*
-            for(int k=0; k<value.length(); k++){
-                char cVal=value.charAt(k);
-                String opVal="";
-                String left="";
-                String right="";
-                String restValue="";
-                double leftVal=0;
-                double rightVal=0;
-                if(cVal=='+' || cVal=='*' || cVal=='/' || cVal=='%' || cVal=='^' || (cVal=='-' && k!=0) ){
-                    opVal=Character.toString(cVal);
-
-                    int p=0;
-                    for(int m=0; m<value.length(); m++){
-
-                        char cVal2=value.charAt(m);
-
-                        if((p==0 && cVal2!=' ' && cVal2!='+' && cVal2!='-' && cVal2!='*' && cVal2!='/' && cVal2!='%' && cVal2!='^') || (cVal2=='-' && right.equals("") && p==0)){
-                            left+=Character.toString(cVal2);
-                        }
-                        else if((p==1 && cVal2!='-' && cVal2!=' ' && cVal2!='+' && cVal2!='*' && cVal2!='/' && cVal2!='%' && cVal2!='^') || (cVal2=='-' && right.equals("") && p==1)){
-                            right+=Character.toString(cVal2);
-                        }
-                        else if(cVal2=='+' || cVal2=='-' || cVal2=='*' || cVal2=='/' || cVal2=='%' || cVal2=='^' ){
-                            p++;
-                        }
-                        if(p>=2){
-                            restValue+=Character.toString(cVal2);
-                        }
-                    }
-
-                    leftVal=Double.parseDouble(left);
-                    rightVal=Double.parseDouble(right);
-                    value= Double.toString(arithmeticOperation(leftVal, rightVal, opVal))+restValue;
-                    k=0;
-                }
-            }
-
-            */
-            //check for assignment
-            int assignmentIndex=0;
-            for(int j=0; j<variables.size(); j++){
-                Variable vSecond=variables.get(j);
-                if(value.equals(vSecond.getName())){
-                    assignmentIndex=j;
-                }
-            }
-            if(exists==false){
-            //figure out if value is an equation and do that first
-                if(isString==true){
-                    v=new Variable(name, value);
-                    variables.add(v);
-                }
-                else{
-                    v=new Variable(name, Double.parseDouble(value));
-                    variables.add(v);
-                }
-            }
-            //handle operations with existing variable
-            else{
-                if(operator.equals("=")){
-                    if(variables.get(varIndex).getVariableType()=="double"){
-
-                        variables.get(varIndex).setDoubleValue(Double.parseDouble(value));
-                    }
-                    else
-                        variables.get(varIndex).setStringValue(value);
-                }
-                //perform according operation
-                else if(operator.equals("+=")){
-                    variables.get(varIndex).setDoubleValue(variables.get(varIndex).getDoubleValue()+variables.get(assignmentIndex).getDoubleValue());
-                }
-                else if(operator.equals("-=")){
-                    variables.get(varIndex).setDoubleValue(variables.get(varIndex).getDoubleValue()-variables.get(assignmentIndex).getDoubleValue());
-                }
-                else if(operator.equals("*=")){
-                    variables.get(varIndex).setDoubleValue(variables.get(varIndex).getDoubleValue()*variables.get(assignmentIndex).getDoubleValue());
-                }
-                else if(operator.equals("/=")){
-                    variables.get(varIndex).setDoubleValue(variables.get(varIndex).getDoubleValue()/variables.get(assignmentIndex).getDoubleValue());
-                }
-                else if(operator.equals("^=")){
-                    variables.get(varIndex).setDoubleValue((int)variables.get(varIndex).getDoubleValue()^(int)variables.get(assignmentIndex).getDoubleValue());
-                }
-                else if(operator.equals("%=")){
-                    variables.get(varIndex).setDoubleValue(variables.get(varIndex).getDoubleValue()%variables.get(assignmentIndex).getDoubleValue());
-                }
-
-            }
-            return variables;
+            //System.out.println("this is a test: " + value);
+            return value;
         }
         catch(Exception e){
-            throw new Exception ("Variable exception \nParserException: " + e + "\n");
+            throw new Exception ("Arithmatic exception \nParserException: " + e + "\n");
         }
     }
     
